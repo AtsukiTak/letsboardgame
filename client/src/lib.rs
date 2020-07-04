@@ -1,16 +1,21 @@
-use wasm_bindgen::prelude::*;
+use wasm_bindgen::{prelude::*, JsCast as _};
 
 #[wasm_bindgen(start)]
 pub fn start() -> Result<(), JsValue> {
-    let window = web_sys::window().expect("no global `window` exists");
-    let document = window.document().expect("should have a document on window");
-    let body = document.body().expect("document should have a body");
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let canvas = document
+        .get_element_by_id("canvas")
+        .unwrap()
+        .dyn_into::<web_sys::HtmlCanvasElement>()?;
 
-    // Manufacture the element we're gonna append
-    let val = document.create_element("p")?;
-    val.set_inner_html("Hello from Rust!");
+    let context = canvas
+        .get_context("webgl")?
+        .unwrap()
+        .dyn_into::<web_sys::WebGlRenderingContext>()?;
 
-    body.append_child(&val)?;
+    context.clear_color(0.0, 0.0, 0.0, 1.0);
+    context.clear(web_sys::WebGlRenderingContext::COLOR_BUFFER_BIT);
 
     Ok(())
 }
