@@ -1,3 +1,4 @@
+use cgmath::{perspective, prelude::*, Deg, Matrix4, Point3, Vector3};
 use wasm_bindgen::{prelude::*, JsCast as _};
 use web_sys::WebGlRenderingContext as Context;
 
@@ -15,13 +16,19 @@ pub fn start() -> Result<(), JsValue> {
         .unwrap()
         .dyn_into::<Context>()?;
 
+    context.clear_color(0.0, 0.0, 0.0, 1.0);
+    context.clear_depth(1.0);
+    context.clear(Context::COLOR_BUFFER_BIT | Context::DEPTH_BUFFER_BIT);
+
     let vert_shader = compile_shader(
         &context,
         Context::VERTEX_SHADER,
         r#"
-        attribute vec4 position;
+        attribute vec3 position;
+        uniform mat4 mvpMatrix;
+
         void main() {
-            gl_Position = position;
+            gl_Position = mvpMatrix * vec4(position, 1.0);
         }
         "#,
     )?;
@@ -35,42 +42,32 @@ pub fn start() -> Result<(), JsValue> {
         "#,
     )?;
     let program = link_program(&context, &vert_shader, &frag_shader)?;
-    context.use_program(Some(&program));
+
+    // "position" attributeが何番目のattributeか
+    let attr_loc = context.get_attrib_location(&program, "position") as u32;
+
+    // "position" attributeは3つの要素(x, y, z)で1つのデータを表す (vec3型)
+    let attr_stride = 3;
 
     // 頂点情報の用意.
     // 3要素（x, y, z) * 3頂点
     let vertices: [f32; 9] = [-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0];
 
-    // bufferの作成
-    // この時点ではまだVBOではない（VBO以外にも使えるbuffer)
-    let buffer = context.create_buffer().unwrap();
+    // VBOの作成とbind
+    create_and_bind_vbo(&context, &vertices);
 
-    // ここでVBOとしてbufferをbind
-    context.bind_buffer(Context::ARRAY_BUFFER, Some(&buffer));
+    // "position" attribute を有効にする
+    context.enable_vertex_attrib_array(attr_loc);
 
-    // Note that `Float32Array::view` is somewhat dangerous (hence the
-    // `unsafe`!). This is creating a raw view into our module's
-    // `WebAssembly.Memory` buffer, but if we allocate more pages for ourself
-    // (aka do a memory allocation in Rust) it'll cause the buffer to change,
-    // causing the `Float32Array` to be invalid.
-    //
-    // As a result, after `Float32Array::view` we have to be very careful not to
-    // do any memory allocations before it's dropped.
-    unsafe {
-        let vert_array = js_sys::Float32Array::view(&vertices);
+    // shaderにデータを登録
+    // 対象となるVBOを必ずbindしておく
+    // じゃないと、どのVBOを対象のattributeに関連付けるかが分からない
+    context.vertex_attrib_pointer_with_i32(attr_loc, attr_stride, Context::FLOAT, false, 0, 0);
 
-        context.buffer_data_with_array_buffer_view(
-            Context::ARRAY_BUFFER,
-            &vert_array,
-            Context::STATIC_DRAW,
-        );
-    }
-
-    context.vertex_attrib_pointer_with_i32(0, 3, Context::FLOAT, false, 0, 0);
-    context.enable_vertex_attrib_array(0);
-
-    context.clear_color(0.0, 0.0, 0.0, 1.0);
-    context.clear(Context::COLOR_BUFFER_BIT);
+    let mvp_mat = create_mvp_matrix();
+    let mvp_mat_array: &[f32; 16] = mvp_mat.as_ref();
+    let uni_loc = context.get_uniform_location(&program, "mvpMatrix").unwrap();
+    context.uniform_matrix4fv_with_f32_array(Some(&uni_loc), false, mvp_mat_array.as_ref());
 
     context.draw_arrays(Context::TRIANGLES, 0, (vertices.len() / 3) as i32);
 
@@ -121,8 +118,44 @@ fn link_program(
         .as_bool()
         .unwrap()
     {
+        context.use_program(Some(&program));
         Ok(program)
     } else {
         Err(context.get_program_info_log(&program).unwrap())
     }
+}
+
+fn create_and_bind_vbo(context: &Context, vertices: &[f32]) {
+    // bufferの作成
+    // この時点ではまだVBOではない（VBO以外にも使えるbuffer)
+    let buffer = context.create_buffer().unwrap();
+
+    // ここでVBOとしてbufferをbind
+    context.bind_buffer(Context::ARRAY_BUFFER, Some(&buffer));
+
+    let vert_array = js_sys::Float32Array::from(vertices);
+
+    // bufferにデータをセット
+    context.buffer_data_with_array_buffer_view(
+        Context::ARRAY_BUFFER,
+        &vert_array,
+        Context::STATIC_DRAW,
+    );
+}
+
+fn create_mvp_matrix() -> Matrix4<f32> {
+    // モデル座標変換行列
+    let m_mat = Matrix4::identity();
+
+    // ビュー座標変換行列
+    let v_mat = Matrix4::look_at(
+        Point3::new(0.0, 1.0, 3.0),
+        Point3::new(1.0, 0.0, 0.0),
+        Vector3::new(0.0, 1.0, 0.0),
+    );
+
+    // プロジェクション座標変換行列
+    let p_mat = perspective(Deg(90.0), 1.0, 0.1, 100.0);
+
+    p_mat * v_mat * m_mat
 }
