@@ -1,3 +1,5 @@
+mod context;
+
 use cgmath::{perspective, prelude::*, Deg, Matrix4, Point3, Vector3};
 use wasm_bindgen::{prelude::*, JsCast as _};
 use web_sys::WebGlRenderingContext as Context;
