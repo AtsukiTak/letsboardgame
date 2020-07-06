@@ -24,10 +24,13 @@ pub fn start() -> Result<(), JsValue> {
         &context,
         Context::VERTEX_SHADER,
         r#"
-        attribute vec3 position;
-        uniform mat4 mvpMatrix;
+        attribute   vec3 position;
+        attribute   vec4 color;
+        uniform     mat4 mvpMatrix;
+        varying     vec4 vColor;
 
         void main() {
+            vColor = color;
             gl_Position = mvpMatrix * vec4(position, 1.0);
         }
         "#,
@@ -36,33 +39,66 @@ pub fn start() -> Result<(), JsValue> {
         &context,
         Context::FRAGMENT_SHADER,
         r#"
+        precision   mediump float;
+        varying     vec4    vColor;
+
         void main() {
-            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            gl_FragColor = vColor;
         }
         "#,
     )?;
     let program = link_program(&context, &vert_shader, &frag_shader)?;
 
-    // "position" attributeが何番目のattributeか
-    let attr_loc = context.get_attrib_location(&program, "position") as u32;
-
-    // "position" attributeは3つの要素(x, y, z)で1つのデータを表す (vec3型)
-    let attr_stride = 3;
-
-    // 頂点情報の用意.
-    // 3要素（x, y, z) * 3頂点
-    let vertices: [f32; 9] = [-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0];
-
-    // VBOの作成とbind
-    create_and_bind_vbo(&context, &vertices);
+    // 各 attributeが何番目のattributeか
+    let pos_attr_loc = context.get_attrib_location(&program, "position") as u32;
+    let color_attr_loc = context.get_attrib_location(&program, "color") as u32;
 
     // "position" attribute を有効にする
-    context.enable_vertex_attrib_array(attr_loc);
+    context.enable_vertex_attrib_array(color_attr_loc);
+    context.enable_vertex_attrib_array(pos_attr_loc);
+
+    // "position" attributeは3つの要素(x, y, z)で1つのデータを表す (vec3型)
+    let pos_attr_stride = 3;
+    // "color" attributeは4つの要素(RGBA)で1つのデータを表す (vec4型)
+    let color_attr_stride = 4;
+
+    // 頂点情報の用意.
+    // 3要素 (x, y, z) * 3頂点
+    let vertices: [f32; 9] = [-0.7, -0.7, 0.0, 0.7, -0.7, 0.0, 0.0, 0.7, 0.0];
+
+    // 色情報の用意
+    // 4要素 (RGBA) * 4頂点
+    let colors: [f32; 12] = [1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0];
+
+    // VBOの作成とbind
+    let vert_vbo = create_vbo(&context, &vertices);
+    let color_vbo = create_vbo(&context, &colors);
+
+    // 以降の操作のために、"position" attribute のvboをbind
+    context.bind_buffer(Context::ARRAY_BUFFER, Some(&vert_vbo));
 
     // shaderにデータを登録
     // 対象となるVBOを必ずbindしておく
     // じゃないと、どのVBOを対象のattributeに関連付けるかが分からない
-    context.vertex_attrib_pointer_with_i32(attr_loc, attr_stride, Context::FLOAT, false, 0, 0);
+    context.vertex_attrib_pointer_with_i32(
+        pos_attr_loc,
+        pos_attr_stride,
+        Context::FLOAT,
+        false,
+        0,
+        0,
+    );
+
+    // 以降の操作のために、"color" attributeのvboをbind
+    context.bind_buffer(Context::ARRAY_BUFFER, Some(&color_vbo));
+    context.vertex_attrib_pointer_with_i32(
+        color_attr_loc,
+        color_attr_stride,
+        Context::FLOAT,
+        false,
+        0,
+        0,
+    );
 
     let mvp_mat = create_mvp_matrix();
     let mvp_mat_array: &[f32; 16] = mvp_mat.as_ref();
@@ -125,7 +161,7 @@ fn link_program(
     }
 }
 
-fn create_and_bind_vbo(context: &Context, vertices: &[f32]) {
+fn create_vbo(context: &Context, vertices: &[f32]) -> web_sys::WebGlBuffer {
     // bufferの作成
     // この時点ではまだVBOではない（VBO以外にも使えるbuffer)
     let buffer = context.create_buffer().unwrap();
@@ -141,6 +177,11 @@ fn create_and_bind_vbo(context: &Context, vertices: &[f32]) {
         &vert_array,
         Context::STATIC_DRAW,
     );
+
+    // bufferをunbind
+    context.bind_buffer(Context::ARRAY_BUFFER, None);
+
+    buffer
 }
 
 fn create_mvp_matrix() -> Matrix4<f32> {
