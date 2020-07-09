@@ -2,20 +2,24 @@ use crate::{
     context::{self, Context},
     vbo::VBO,
 };
-use cgmath::Matrix4;
+use cgmath::{prelude::*, Matrix4};
 use wasm_bindgen::JsValue;
 
-pub struct Program {
+pub struct Program<P> {
     program: web_sys::WebGlProgram,
     vert_shader: VertexShader,
     frag_shader: FragmentShader,
+    pub params: P,
 }
 
-impl Program {
+impl<P> Program<P>
+where
+    P: ParamsBase,
+{
     pub fn new(
-        mut vert_shader: VertexShader,
+        vert_shader: VertexShader,
         frag_shader: FragmentShader,
-    ) -> Result<Program, JsValue> {
+    ) -> Result<Program<P>, JsValue> {
         context::with(|ctx| {
             let program = ctx.create_program().unwrap();
 
@@ -40,43 +44,20 @@ impl Program {
             // 現在のrenderingでこのprogramを使うことを宣言する
             ctx.use_program(Some(&program));
 
-            // 各attributeを有効にする
-            for attr in vert_shader.attrs.iter_mut() {
-                // program中の位置（location）を取得
-                let loc = ctx.get_attrib_location(&program, attr.name);
-                if loc < 0 {
-                    let msg = format!("missing vertex attribute \"{}\"", attr.name);
-                    return Err(JsValue::from_str(msg.as_str()));
-                }
+            let visitor = ParamsVisitor {
+                ctx,
+                program: &program,
+            };
 
-                attr.index = Some(loc as u32);
-                attr.enable();
-            }
-
-            // 各uniformのindexを取得する
-            for uniform in vert_shader.uniforms.iter_mut() {
-                if let Some(loc) = ctx.get_uniform_location(&program, uniform.name) {
-                    uniform.location = Some(loc);
-                    uniform.enable();
-                } else {
-                    let msg = format!("missing vertex uniform \"{}\"", uniform.name);
-                    return Err(JsValue::from_str(msg.as_str()));
-                }
-            }
+            let params = P::from_visitor(visitor)?;
 
             Ok(Program {
                 program,
                 vert_shader,
                 frag_shader,
+                params,
             })
         })
-    }
-
-    pub fn vert_attr(&self, attr_name: &str) -> Option<&Attribute> {
-        self.vert_shader
-            .attrs
-            .iter()
-            .find(|attr| attr.name == attr_name)
     }
 }
 
@@ -87,36 +68,22 @@ impl Program {
  */
 pub struct VertexShader {
     shader: web_sys::WebGlShader,
-    attrs: Vec<Attribute>,
-    uniforms: Vec<Uniform>,
+}
+
+impl VertexShader {
+    pub fn compile(src: &str) -> Result<Self, JsValue> {
+        context::with(|ctx| {
+            let shader = compile(ctx, src, Context::VERTEX_SHADER)?;
+            Ok(VertexShader { shader })
+        })
+    }
 }
 
 pub struct FragmentShader {
     shader: web_sys::WebGlShader,
 }
 
-impl VertexShader {
-    /// # NOTE
-    /// Panic if context is uninitialized.
-    pub fn compile(
-        src: &str,
-        attrs: Vec<Attribute>,
-        uniforms: Vec<Uniform>,
-    ) -> Result<Self, JsValue> {
-        context::with(|ctx| {
-            let shader = compile(ctx, src, Context::VERTEX_SHADER)?;
-            Ok(VertexShader {
-                shader,
-                attrs,
-                uniforms,
-            })
-        })
-    }
-}
-
 impl FragmentShader {
-    /// # NOTE
-    /// Panic if context is uninitialized.
     pub fn compile(src: &str) -> Result<Self, JsValue> {
         context::with(|ctx| {
             let shader = compile(ctx, src, Context::FRAGMENT_SHADER)?;
@@ -149,62 +116,134 @@ fn compile(ctx: &Context, src: &str, shader_type: u32) -> Result<web_sys::WebGlS
 }
 
 /*
+ * ========
+ * Params
+ * ========
+ */
+pub trait ParamsBase {
+    fn from_visitor<'a>(visitor: ParamsVisitor<'a>) -> Result<Self, JsValue>
+    where
+        Self: Sized;
+}
+
+pub struct ParamsVisitor<'a> {
+    ctx: &'a Context,
+    program: &'a web_sys::WebGlProgram,
+}
+
+impl<'a> ParamsVisitor<'a> {
+    pub fn visit_attr<T>(&self, name: &'static str) -> Result<T, JsValue>
+    where
+        T: AttributeBase,
+    {
+        // program中の位置（location）を取得
+        let loc = self.ctx.get_attrib_location(self.program, name);
+
+        if loc < 0 {
+            let msg = format!("missing vertex attribute \"{}\"", name);
+            return Err(JsValue::from_str(msg.as_str()));
+        }
+
+        self.ctx.enable_vertex_attrib_array(loc as u32);
+
+        Ok(T::from_parts(name, loc as u32))
+    }
+
+    pub fn visit_uniform<T>(&self, name: &'static str) -> Result<T, JsValue>
+    where
+        T: UniformBase,
+    {
+        if let Some(loc) = self.ctx.get_uniform_location(self.program, name) {
+            Ok(T::from_parts(name, loc))
+        } else {
+            let msg = format!("missing vertex uniform \"{}\"", name);
+            Err(JsValue::from_str(msg.as_str()))
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct Vec3(Vec<f32>);
+
+#[derive(Default)]
+pub struct Vec4(Vec<f32>);
+
+pub struct Mat4(Matrix4<f32>);
+
+impl AsRef<[f32]> for Mat4 {
+    fn as_ref(&self) -> &[f32] {
+        AsRef::<[f32; 16]>::as_ref(&self.0).as_ref()
+    }
+}
+
+impl Default for Mat4 {
+    fn default() -> Self {
+        Mat4(Matrix4::identity())
+    }
+}
+
+impl From<Matrix4<f32>> for Mat4 {
+    fn from(value: Matrix4<f32>) -> Self {
+        Mat4(value)
+    }
+}
+
+/*
  * ==========
  * Attribute
  * ==========
  */
-pub struct Attribute {
-    pub name: &'static str,
-    pub type_: AttributeType,
-    pub index: Option<u32>,
+pub trait AttributeBase {
+    fn from_parts(name: &'static str, location: u32) -> Self;
 }
 
-impl Attribute {
-    pub fn new(name: &'static str, type_: AttributeType) -> Self {
+pub struct Attribute<V> {
+    name: &'static str,
+    location: u32,
+    value: V,
+}
+
+impl AttributeBase for Attribute<Vec3> {
+    fn from_parts(name: &'static str, location: u32) -> Self {
         Attribute {
             name,
-            type_,
-            index: None,
+            location,
+            value: Vec3::default(),
         }
     }
+}
 
-    pub fn enable(&self) {
-        context::with(|ctx| ctx.enable_vertex_attrib_array(self.index.unwrap()))
-    }
-
+impl Attribute<Vec3> {
     pub fn attach_vbo(&self, vbo: &VBO) {
-        let index = self
-            .index
-            .expect("cannot attach vbo to vertex attribute unlinked with any program");
-
         vbo.bind();
 
         context::with(|ctx| {
-            ctx.vertex_attrib_pointer_with_i32(
-                index,
-                self.type_.stride() as i32,
-                Context::FLOAT,
-                false,
-                0,
-                0,
-            )
+            ctx.vertex_attrib_pointer_with_i32(self.location, 3, Context::FLOAT, false, 0, 0)
         });
 
         vbo.unbind();
     }
 }
 
-pub enum AttributeType {
-    Vec3,
-    Vec4,
+impl AttributeBase for Attribute<Vec4> {
+    fn from_parts(name: &'static str, location: u32) -> Self {
+        Attribute {
+            name,
+            location,
+            value: Vec4::default(),
+        }
+    }
 }
 
-impl AttributeType {
-    pub fn stride(&self) -> u32 {
-        match self {
-            AttributeType::Vec3 => 3,
-            AttributeType::Vec4 => 4,
-        }
+impl Attribute<Vec4> {
+    pub fn attach_vbo(&self, vbo: &VBO) {
+        vbo.bind();
+
+        context::with(|ctx| {
+            ctx.vertex_attrib_pointer_with_i32(self.location, 4, Context::FLOAT, false, 0, 0)
+        });
+
+        vbo.unbind();
     }
 }
 
@@ -213,48 +252,32 @@ impl AttributeType {
  * Uniform
  * ==========
  */
-pub struct Uniform {
+pub trait UniformBase {
+    fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self;
+}
+
+pub struct Uniform<V> {
     name: &'static str,
-    value: UniformVal,
-    location: Option<web_sys::WebGlUniformLocation>,
+    location: web_sys::WebGlUniformLocation,
+    value: V,
 }
 
-pub enum UniformVal {
-    /* TODO
-    Float2,
-    Float3,
-    Float4,
-    Int2,
-    Int3,
-    Int4,
-    VecFloat2,
-    VecFloat3,
-    VecFloat4,
-    VecInt2,
-    VecInt3,
-    VecInt4,
-    Matrix2,
-    Matrix3,
-    */
-    Matrix4(Matrix4<f32>),
-}
-
-impl Uniform {
-    pub fn new_mat4(name: &'static str, value: Matrix4<f32>) -> Self {
+impl UniformBase for Uniform<Mat4> {
+    fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
         Uniform {
             name,
-            value: UniformVal::Matrix4(value),
-            location: None,
+            location,
+            value: Mat4::default(),
         }
     }
+}
 
-    pub fn enable(&self) {
-        context::with(|ctx| match &self.value {
-            UniformVal::Matrix4(val) => ctx.uniform_matrix4fv_with_f32_array(
-                Some(self.location.as_ref().unwrap()),
-                false,
-                AsRef::<[f32; 16]>::as_ref(val).as_ref(),
-            ),
+impl Uniform<Mat4> {
+    pub fn set_value(&mut self, value: Matrix4<f32>) {
+        self.value = Mat4(value);
+
+        context::with(|ctx| {
+            ctx.uniform_matrix4fv_with_f32_array(Some(&self.location), false, self.value.as_ref())
         })
     }
 }

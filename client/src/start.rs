@@ -1,6 +1,9 @@
 use crate::{
     context::{self, Context},
-    shader::{Attribute, AttributeType, FragmentShader, Program, Uniform, VertexShader},
+    shader::{
+        Attribute, FragmentShader, Mat4, ParamsBase, ParamsVisitor, Program, Uniform, Vec3, Vec4,
+        VertexShader,
+    },
     vbo::VBO,
 };
 use cgmath::{prelude::*, Deg, Matrix4, Point3, Vector3};
@@ -22,24 +25,23 @@ pub fn start() -> Result<(), JsValue> {
         ctx.clear(Context::COLOR_BUFFER_BIT | Context::DEPTH_BUFFER_BIT);
     });
 
-    let program = Program::new(vert_shader()?, frag_shader()?)?;
+    let mut program = Program::<Params>::new(vert_shader()?, frag_shader()?)?;
 
     let vertices_vbo = VBO::with_data(&[
         -0.7, -0.7, 0.0, // xyz
         0.7, -0.7, 0.0, // xyz
         0.0, 0.7, 0.0, // xyz
     ]);
-    program
-        .vert_attr("position")
-        .unwrap()
-        .attach_vbo(&vertices_vbo);
+    program.params.position.attach_vbo(&vertices_vbo);
 
     let colors_vbo = VBO::with_data(&[
         1.0, 0.0, 0.0, 1.0, // rgba
         0.0, 1.0, 0.0, 1.0, // rgba
         0.0, 0.0, 1.0, 1.0, // rgba
     ]);
-    program.vert_attr("color").unwrap().attach_vbo(&colors_vbo);
+    program.params.color.attach_vbo(&colors_vbo);
+
+    program.params.mvp_matrix.set_value(mvp_matrix());
 
     context::with(|ctx| ctx.draw_arrays(Context::TRIANGLES, 0, 3));
 
@@ -59,14 +61,23 @@ fn vert_shader() -> Result<VertexShader, JsValue> {
         }
     "#;
 
-    let attrs = vec![
-        Attribute::new("position", AttributeType::Vec3),
-        Attribute::new("color", AttributeType::Vec4),
-    ];
+    VertexShader::compile(src)
+}
 
-    let uniforms = vec![Uniform::new_mat4("mvpMatrix", mvp_matrix())];
+struct Params {
+    position: Attribute<Vec3>,
+    color: Attribute<Vec4>,
+    mvp_matrix: Uniform<Mat4>,
+}
 
-    VertexShader::compile(src, attrs, uniforms)
+impl ParamsBase for Params {
+    fn from_visitor<'a>(visitor: ParamsVisitor<'a>) -> Result<Self, JsValue> {
+        Ok(Params {
+            position: visitor.visit_attr("position")?,
+            color: visitor.visit_attr("color")?,
+            mvp_matrix: visitor.visit_uniform("mvpMatrix")?,
+        })
+    }
 }
 
 fn mvp_matrix() -> Matrix4<f32> {
