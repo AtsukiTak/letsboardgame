@@ -41,7 +41,13 @@ pub fn start() -> Result<(), JsValue> {
     ]);
     program.params.color.attach_vbo(&colors_vbo);
 
-    program.params.mvp_matrix.set_value(mvp_matrix());
+    let (mvp_matrix1, mvp_matrix2) = mvp_matrix();
+
+    program.params.mvp_matrix.set_value(mvp_matrix1);
+
+    context::with(|ctx| ctx.draw_arrays(Context::TRIANGLES, 0, 3));
+
+    program.params.mvp_matrix.set_value(mvp_matrix2);
 
     context::with(|ctx| ctx.draw_arrays(Context::TRIANGLES, 0, 3));
 
@@ -80,21 +86,22 @@ impl ParamsBase for Params {
     }
 }
 
-fn mvp_matrix() -> Matrix4<f32> {
+fn mvp_matrix() -> (Matrix4<f32>, Matrix4<f32>) {
     // モデル座標変換行列
-    let m_mat = Matrix4::identity();
+    let m_mat1 = Matrix4::from_translation(Vector3::new(-1.5, 0.0, 0.0));
+    let m_mat2 = Matrix4::from_translation(Vector3::new(1.5, 0.0, 0.0));
 
     // ビュー座標変換行列
     let v_mat = Matrix4::look_at(
-        Point3::new(0.0, 1.0, 3.0),
-        Point3::new(1.0, 0.0, 0.0),
+        Point3::new(0.0, 0.0, 3.0),
+        Point3::new(0.0, 0.0, 0.0),
         Vector3::new(0.0, 1.0, 0.0),
     );
 
     // プロジェクション座標変換行列
     let p_mat = cgmath::perspective(Deg(90.0), 1.0, 0.1, 100.0);
 
-    p_mat * v_mat * m_mat
+    (p_mat * v_mat * m_mat1, p_mat * v_mat * m_mat2)
 }
 
 fn frag_shader() -> Result<FragmentShader, JsValue> {
