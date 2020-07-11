@@ -1,4 +1,4 @@
-use crate::context::{self, Context};
+use crate::webgl::context::{self, Context};
 
 pub struct VBO {
     buf: web_sys::WebGlBuffer,

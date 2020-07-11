@@ -1,4 +1,4 @@
-use crate::{
+use crate::webgl::{
     context::{self, Context},
     shader::{
         Attribute, FragmentShader, Mat4, ParamsBase, ParamsVisitor, Program, Uniform, Vec3, Vec4,

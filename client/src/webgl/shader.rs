@@ -1,4 +1,4 @@
-use crate::{
+use crate::webgl::{
     context::{self, Context},
     vbo::VBO,
 };

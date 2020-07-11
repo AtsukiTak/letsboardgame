@@ -1,7 +1,5 @@
-mod context;
-mod shader;
 mod start;
-mod vbo;
+mod webgl;
 
 use wasm_bindgen::prelude::*;
 
