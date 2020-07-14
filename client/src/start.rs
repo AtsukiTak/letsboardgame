@@ -35,7 +35,7 @@ pub async fn start() -> Result<(), JsValue> {
 
     // IBOの生成
     let ibo = IBO::with_data(&[
-        0, 1, 2, // 1つめの三角ポリゴン
+        0, 2, 1, // 1つめの三角ポリゴン
         1, 2, 3, // 2つめの三角ポリゴン
     ]);
     ibo.bind();
