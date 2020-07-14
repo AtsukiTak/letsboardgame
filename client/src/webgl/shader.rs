@@ -1,6 +1,6 @@
 use crate::webgl::{
+    buffers::VBO,
     context::{self, Context},
-    vbo::VBO,
 };
 use cgmath::{prelude::*, Matrix4};
 use std::marker::PhantomData;

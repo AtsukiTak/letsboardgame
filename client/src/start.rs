@@ -1,11 +1,11 @@
 use crate::webgl::{
+    buffers::VBO,
     context::{self, Context},
     program::Program,
     shader::{
         Attribute, FragmentShader, Mat4, ParamsBase, ParamsVisitor, Uniform, Vec3, Vec4,
         VertexShader,
     },
-    vbo::VBO,
 };
 use cgmath::{prelude::*, Deg, Matrix4, Point3, Vector3};
 use wasm_bindgen::{prelude::*, JsCast as _};
