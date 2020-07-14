@@ -1,5 +1,5 @@
 use crate::webgl::{
-    buffers::VBO,
+    buffers::{IBO, VBO},
     context::{self, Context},
     program::Program,
     shader::{
@@ -17,9 +17,10 @@ pub async fn start() -> Result<(), JsValue> {
 
     // 頂点VBOの生成
     let vertices_vbo = VBO::with_data(&[
-        -0.7, -0.7, 0.0, // xyz
-        0.7, -0.7, 0.0, // xyz
-        0.0, 0.7, 0.0, // xyz
+        -0.5, 0.5, 0.0, // xyz
+        0.5, 0.5, 0.0, // xyz
+        -0.5, -0.5, 0.0, // xyz
+        0.5, -0.5, 0.0, // xyz
     ]);
     program.params.position.attach_vbo(&vertices_vbo);
 
@@ -28,8 +29,16 @@ pub async fn start() -> Result<(), JsValue> {
         1.0, 0.0, 0.0, 1.0, // rgba
         0.0, 1.0, 0.0, 1.0, // rgba
         0.0, 0.0, 1.0, 1.0, // rgba
+        1.0, 1.0, 1.0, 1.0, // rgba
     ]);
     program.params.color.attach_vbo(&colors_vbo);
+
+    // IBOの生成
+    let ibo = IBO::with_data(&[
+        0, 1, 2, // 1つめの三角ポリゴン
+        1, 2, 3, // 2つめの三角ポリゴン
+    ]);
+    ibo.bind();
 
     let mut frame = 0;
     loop {
@@ -68,7 +77,9 @@ fn render(program: &mut Program<Params>, frame: usize, vp_matrix: Matrix4<f32>) 
 
     let mvp_matrix = vp_matrix * m_matrix(frame);
     program.params.mvp_matrix.set_value(mvp_matrix);
-    context::with(|ctx| ctx.draw_arrays(Context::TRIANGLES, 0, 3));
+    context::with(|ctx| {
+        ctx.draw_elements_with_i32(Context::TRIANGLES, 2 * 3, Context::UNSIGNED_SHORT, 0)
+    });
 }
 
 fn vert_shader() -> Result<VertexShader, JsValue> {
@@ -106,13 +117,18 @@ impl ParamsBase for Params {
 fn vp_matrix() -> Matrix4<f32> {
     // ビュー座標変換行列
     let v_mat = Matrix4::look_at(
-        Point3::new(0.0, 0.0, 3.0),
-        Point3::new(0.0, 0.0, 0.0),
-        Vector3::new(0.0, 1.0, 0.0),
+        Point3::new(0.0, 0.0, 3.0),  // カメラの位置
+        Point3::new(0.0, 0.0, 0.0),  // 視点の中央
+        Vector3::new(0.0, 1.0, 0.0), // 上方向のベクトル
     );
 
     // プロジェクション座標変換行列
-    let p_mat = cgmath::perspective(Deg(90.0), 1.0, 0.1, 100.0);
+    let p_mat = cgmath::perspective(
+        Deg(100.0), // 画角
+        1.0,        // アスペクト比
+        0.1,        // どれくらい近くまでカメラに写すか
+        100.0,      // どれくらい遠くまでカメラに写すか
+    );
 
     p_mat * v_mat
 }
