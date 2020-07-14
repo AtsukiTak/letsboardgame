@@ -25,3 +25,27 @@ where
 {
     GLOBAL_CONTEXT_CELL.with(|cell| func(cell.borrow().as_ref().unwrap()))
 }
+
+pub fn enable(cap: u32) {
+    with(|ctx| ctx.enable(cap))
+}
+
+pub fn disable(cap: u32) {
+    with(|ctx| ctx.disable(cap))
+}
+
+pub fn enable_culling() {
+    enable(Context::CULL_FACE)
+}
+
+pub fn disable_culling() {
+    disable(Context::CULL_FACE)
+}
+
+pub fn enable_depth_test() {
+    enable(Context::DEPTH_TEST)
+}
+
+pub fn disable_depth_test() {
+    disable(Context::DEPTH_TEST)
+}

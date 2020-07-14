@@ -61,6 +61,9 @@ fn initialize() -> Result<(), JsValue> {
 
     context::initialize(canvas)?;
 
+    context::enable_culling();
+    context::enable_depth_test();
+
     Ok(())
 }
 
