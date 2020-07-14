@@ -1,13 +1,13 @@
 use crate::webgl::{
     context::{self, Context},
+    program::Program,
     shader::{
-        Attribute, FragmentShader, Mat4, ParamsBase, ParamsVisitor, Program, Uniform, Vec3, Vec4,
+        Attribute, FragmentShader, Mat4, ParamsBase, ParamsVisitor, Uniform, Vec3, Vec4,
         VertexShader,
     },
     vbo::VBO,
 };
 use cgmath::{prelude::*, Deg, Matrix4, Point3, Vector3};
-use std::time::Duration;
 use wasm_bindgen::{prelude::*, JsCast as _};
 
 pub async fn start() -> Result<(), JsValue> {
@@ -36,9 +36,7 @@ pub async fn start() -> Result<(), JsValue> {
         clear();
         render(&mut program, frame, vp_matrix());
         frame += 1;
-        wasm_timer::Delay::new(Duration::from_millis(200))
-            .await
-            .unwrap();
+        gloo_timers::future::TimeoutFuture::new(1000 / 60).await;
     }
 
     Ok(())
@@ -66,7 +64,7 @@ fn clear() {
 }
 
 fn render(program: &mut Program<Params>, frame: usize, vp_matrix: Matrix4<f32>) {
-    web_sys::console::log_1(&format!("frame {}", frame).into());
+    // web_sys::console::log_1(&format!("frame {}", frame).into());
 
     let mvp_matrix = vp_matrix * m_matrix(frame);
     program.params.mvp_matrix.set_value(mvp_matrix);
