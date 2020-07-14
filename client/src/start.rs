@@ -7,9 +7,45 @@ use crate::webgl::{
     vbo::VBO,
 };
 use cgmath::{prelude::*, Deg, Matrix4, Point3, Vector3};
+use std::cell::RefCell;
+use std::time::Duration;
 use wasm_bindgen::{prelude::*, JsCast as _};
 
-pub fn start() -> Result<(), JsValue> {
+pub async fn start() -> Result<(), JsValue> {
+    initialize()?;
+
+    let mut program = Program::<Params>::new(vert_shader()?, frag_shader()?)?;
+
+    // 頂点VBOの生成
+    let vertices_vbo = VBO::with_data(&[
+        -0.7, -0.7, 0.0, // xyz
+        0.7, -0.7, 0.0, // xyz
+        0.0, 0.7, 0.0, // xyz
+    ]);
+    program.params.position.attach_vbo(&vertices_vbo);
+
+    // 色VBOの生成
+    let colors_vbo = VBO::with_data(&[
+        1.0, 0.0, 0.0, 1.0, // rgba
+        0.0, 1.0, 0.0, 1.0, // rgba
+        0.0, 0.0, 1.0, 1.0, // rgba
+    ]);
+    program.params.color.attach_vbo(&colors_vbo);
+
+    let mut frame = 0;
+    loop {
+        clear();
+        render(&mut program, frame, vp_matrix());
+        frame += 1;
+        wasm_timer::Delay::new(Duration::from_millis(200))
+            .await
+            .unwrap();
+    }
+
+    Ok(())
+}
+
+fn initialize() -> Result<(), JsValue> {
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
     let canvas = document
@@ -19,39 +55,23 @@ pub fn start() -> Result<(), JsValue> {
 
     context::initialize(canvas)?;
 
+    Ok(())
+}
+
+fn clear() {
     context::with(|ctx| {
         ctx.clear_color(0.0, 0.0, 0.0, 1.0);
         ctx.clear_depth(1.0);
         ctx.clear(Context::COLOR_BUFFER_BIT | Context::DEPTH_BUFFER_BIT);
     });
+}
 
-    let mut program = Program::<Params>::new(vert_shader()?, frag_shader()?)?;
+fn render(program: &mut Program<Params>, frame: usize, vp_matrix: Matrix4<f32>) {
+    web_sys::console::log_1(&format!("frame {}", frame).into());
 
-    let vertices_vbo = VBO::with_data(&[
-        -0.7, -0.7, 0.0, // xyz
-        0.7, -0.7, 0.0, // xyz
-        0.0, 0.7, 0.0, // xyz
-    ]);
-    program.params.position.attach_vbo(&vertices_vbo);
-
-    let colors_vbo = VBO::with_data(&[
-        1.0, 0.0, 0.0, 1.0, // rgba
-        0.0, 1.0, 0.0, 1.0, // rgba
-        0.0, 0.0, 1.0, 1.0, // rgba
-    ]);
-    program.params.color.attach_vbo(&colors_vbo);
-
-    let (mvp_matrix1, mvp_matrix2) = mvp_matrix();
-
-    program.params.mvp_matrix.set_value(mvp_matrix1);
-
+    let mvp_matrix = vp_matrix * m_matrix(frame);
+    program.params.mvp_matrix.set_value(mvp_matrix);
     context::with(|ctx| ctx.draw_arrays(Context::TRIANGLES, 0, 3));
-
-    program.params.mvp_matrix.set_value(mvp_matrix2);
-
-    context::with(|ctx| ctx.draw_arrays(Context::TRIANGLES, 0, 3));
-
-    Ok(())
 }
 
 fn vert_shader() -> Result<VertexShader, JsValue> {
@@ -86,11 +106,7 @@ impl ParamsBase for Params {
     }
 }
 
-fn mvp_matrix() -> (Matrix4<f32>, Matrix4<f32>) {
-    // モデル座標変換行列
-    let m_mat1 = Matrix4::from_translation(Vector3::new(-1.5, 0.0, 0.0));
-    let m_mat2 = Matrix4::from_translation(Vector3::new(1.5, 0.0, 0.0));
-
+fn vp_matrix() -> Matrix4<f32> {
     // ビュー座標変換行列
     let v_mat = Matrix4::look_at(
         Point3::new(0.0, 0.0, 3.0),
@@ -101,7 +117,12 @@ fn mvp_matrix() -> (Matrix4<f32>, Matrix4<f32>) {
     // プロジェクション座標変換行列
     let p_mat = cgmath::perspective(Deg(90.0), 1.0, 0.1, 100.0);
 
-    (p_mat * v_mat * m_mat1, p_mat * v_mat * m_mat2)
+    p_mat * v_mat
+}
+
+fn m_matrix(frame: usize) -> Matrix4<f32> {
+    let angle = Deg((frame * 6 % 360) as f32);
+    Matrix4::from_translation(Vector3::new(angle.cos(), angle.sin(), 0.0))
 }
 
 fn frag_shader() -> Result<FragmentShader, JsValue> {
