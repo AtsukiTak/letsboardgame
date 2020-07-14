@@ -7,7 +7,6 @@ use crate::webgl::{
     vbo::VBO,
 };
 use cgmath::{prelude::*, Deg, Matrix4, Point3, Vector3};
-use std::cell::RefCell;
 use std::time::Duration;
 use wasm_bindgen::{prelude::*, JsCast as _};
 

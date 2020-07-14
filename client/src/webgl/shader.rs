@@ -3,8 +3,10 @@ use crate::webgl::{
     vbo::VBO,
 };
 use cgmath::{prelude::*, Matrix4};
+use std::marker::PhantomData;
 use wasm_bindgen::JsValue;
 
+#[allow(dead_code)]
 pub struct Program<P> {
     program: web_sys::WebGlProgram,
     vert_shader: VertexShader,
@@ -198,9 +200,10 @@ pub trait AttributeBase {
 }
 
 pub struct Attribute<V> {
+    #[allow(dead_code)]
     name: &'static str,
     location: u32,
-    value: V,
+    _value: PhantomData<V>,
 }
 
 impl AttributeBase for Attribute<Vec3> {
@@ -208,7 +211,7 @@ impl AttributeBase for Attribute<Vec3> {
         Attribute {
             name,
             location,
-            value: Vec3::default(),
+            _value: PhantomData,
         }
     }
 }
@@ -230,7 +233,7 @@ impl AttributeBase for Attribute<Vec4> {
         Attribute {
             name,
             location,
-            value: Vec4::default(),
+            _value: PhantomData,
         }
     }
 }
@@ -257,6 +260,7 @@ pub trait UniformBase {
 }
 
 pub struct Uniform<V> {
+    #[allow(dead_code)]
     name: &'static str,
     location: web_sys::WebGlUniformLocation,
     value: V,
