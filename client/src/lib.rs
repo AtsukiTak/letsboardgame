@@ -1,7 +1,7 @@
+pub mod core;
 pub mod models;
 pub mod programs;
 mod start;
-pub mod webgl;
 
 use wasm_bindgen::prelude::*;
 

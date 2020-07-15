@@ -1,4 +1,4 @@
-use crate::webgl::{
+use super::{
     buffers::VBO,
     context::{self, Context},
     types::{Mat4, Vec3, Vec4},

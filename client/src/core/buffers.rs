@@ -1,4 +1,4 @@
-use crate::webgl::context::{self, Context};
+use super::context::{self, Context};
 use std::marker::PhantomData;
 
 pub struct VBO<T> {

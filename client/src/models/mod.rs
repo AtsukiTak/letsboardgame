@@ -2,7 +2,7 @@ mod torus;
 
 pub use torus::torus;
 
-use crate::webgl::types::{Vec3, Vec4};
+use crate::core::types::{Vec3, Vec4};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Model {

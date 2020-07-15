@@ -1,4 +1,4 @@
-use crate::webgl::context::{self, Context};
+use crate::core::context::{self, Context};
 use crate::{models::torus, programs::StdProgram};
 use cgmath::{prelude::*, Deg, Matrix4, Point3, Vector3};
 use wasm_bindgen::{prelude::*, JsCast as _};

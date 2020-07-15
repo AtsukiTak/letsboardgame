@@ -1,4 +1,4 @@
-use crate::webgl::{
+use super::{
     context::{self, Context},
     shader::{FragmentShader, ParamsBase, ParamsVisitor, VertexShader},
 };

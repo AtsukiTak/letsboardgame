@@ -1,11 +1,11 @@
-use crate::models::Model;
-use crate::webgl::{
+use crate::core::{
     buffers::{IBO, VBO},
     context::{self, Context},
     program::Program,
     shader::{Attribute, FragmentShader, ParamsBase, ParamsVisitor, Uniform, VertexShader},
     types::{Mat4, Vec3, Vec4},
 };
+use crate::models::Model;
 use cgmath::Matrix4;
 use wasm_bindgen::prelude::*;
 
