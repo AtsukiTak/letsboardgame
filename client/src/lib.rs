@@ -1,3 +1,4 @@
+pub mod models;
 mod start;
 pub mod webgl;
 
