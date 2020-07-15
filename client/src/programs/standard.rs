@@ -16,7 +16,10 @@ pub struct StdProgram {
 
 impl StdProgram {
     pub fn new(model: Model, translater: Matrix4<f32>) -> Result<Self, JsValue> {
-        let mut program = Program::<Params>::new(vert_shader()?, frag_shader()?)?;
+        let vert_shader = VertexShader::compile(include_str!("standard.vert"))?;
+        let frag_shader = FragmentShader::compile(include_str!("standard.frag"))?;
+
+        let mut program = Program::<Params>::new(vert_shader, frag_shader)?;
 
         let vert_vbo = VBO::with_data(&model.positions);
         program.params.position.attach_vbo(&vert_vbo);
@@ -48,22 +51,6 @@ impl StdProgram {
     }
 }
 
-fn vert_shader() -> Result<VertexShader, JsValue> {
-    let src = r#"
-        attribute   vec3 position;
-        attribute   vec4 color;
-        uniform     mat4 mvpMatrix;
-        varying     vec4 vColor;
-
-        void main() {
-            vColor = color;
-            gl_Position = mvpMatrix * vec4(position, 1.0);
-        }
-    "#;
-
-    VertexShader::compile(src)
-}
-
 struct Params {
     position: Attribute<Vec3<f32>>,
     color: Attribute<Vec4<f32>>,
@@ -78,17 +65,4 @@ impl ParamsBase for Params {
             mvp_matrix: visitor.visit_uniform("mvpMatrix")?,
         })
     }
-}
-
-fn frag_shader() -> Result<FragmentShader, JsValue> {
-    let src = r#"
-        precision   mediump float;
-        varying     vec4    vColor;
-
-        void main() {
-            gl_FragColor = vColor;
-        }
-    "#;
-
-    FragmentShader::compile(src)
 }
