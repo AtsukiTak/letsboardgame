@@ -9,4 +9,5 @@ pub struct Model {
     pub positions: Vec3<f32>,
     pub colors: Vec4<f32>,
     pub indexes: Vec3<i16>,
+    pub normals: Vec3<f32>,
 }

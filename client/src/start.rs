@@ -6,12 +6,14 @@ use wasm_bindgen::{prelude::*, JsCast as _};
 pub async fn start() -> Result<(), JsValue> {
     initialize()?;
 
-    let model = torus(1.0, 32, 2.0, 32);
+    let model = torus(1.0, 64, 2.0, 64);
+
+    let light_dir = Vector3::new(0.0, 0.5, -0.2);
 
     let vp_matrix = vp_matrix();
     let translater = vp_matrix * m_matrix(0);
 
-    let mut program = StdProgram::new(model, translater)?;
+    let mut program = StdProgram::new(model, translater, light_dir)?;
 
     let mut frame = 1;
     loop {
