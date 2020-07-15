@@ -3,10 +3,8 @@ use crate::webgl::{
     buffers::{IBO, VBO},
     context::{self, Context},
     program::Program,
-    shader::{
-        Attribute, FragmentShader, Mat4, ParamsBase, ParamsVisitor, Uniform, Vec3, Vec4,
-        VertexShader,
-    },
+    shader::{Attribute, FragmentShader, ParamsBase, ParamsVisitor, Uniform, VertexShader},
+    types::{Mat4, Vec3, Vec4},
 };
 use cgmath::Matrix4;
 use wasm_bindgen::prelude::*;
@@ -67,9 +65,9 @@ fn vert_shader() -> Result<VertexShader, JsValue> {
 }
 
 struct Params {
-    position: Attribute<Vec3>,
-    color: Attribute<Vec4>,
-    mvp_matrix: Uniform<Mat4>,
+    position: Attribute<Vec3<f32>>,
+    color: Attribute<Vec4<f32>>,
+    mvp_matrix: Uniform<Mat4<f32>>,
 }
 
 impl ParamsBase for Params {

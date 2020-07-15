@@ -1,8 +1,9 @@
 use crate::webgl::{
     buffers::VBO,
     context::{self, Context},
+    types::{Mat4, Vec3, Vec4},
 };
-use cgmath::{prelude::*, Matrix4};
+use cgmath::Matrix4;
 use std::marker::PhantomData;
 use wasm_bindgen::JsValue;
 
@@ -106,32 +107,6 @@ impl<'a> ParamsVisitor<'a> {
     }
 }
 
-#[derive(Default)]
-pub struct Vec3(Vec<f32>);
-
-#[derive(Default)]
-pub struct Vec4(Vec<f32>);
-
-pub struct Mat4(Matrix4<f32>);
-
-impl AsRef<[f32]> for Mat4 {
-    fn as_ref(&self) -> &[f32] {
-        AsRef::<[f32; 16]>::as_ref(&self.0).as_ref()
-    }
-}
-
-impl Default for Mat4 {
-    fn default() -> Self {
-        Mat4(Matrix4::identity())
-    }
-}
-
-impl From<Matrix4<f32>> for Mat4 {
-    fn from(value: Matrix4<f32>) -> Self {
-        Mat4(value)
-    }
-}
-
 /*
  * ==========
  * Attribute
@@ -148,7 +123,7 @@ pub struct Attribute<V> {
     _value: PhantomData<V>,
 }
 
-impl AttributeBase for Attribute<Vec3> {
+impl AttributeBase for Attribute<Vec3<f32>> {
     fn from_parts(name: &'static str, location: u32) -> Self {
         Attribute {
             name,
@@ -158,7 +133,7 @@ impl AttributeBase for Attribute<Vec3> {
     }
 }
 
-impl Attribute<Vec3> {
+impl Attribute<Vec3<f32>> {
     pub fn attach_vbo(&self, vbo: &VBO) {
         vbo.bind();
 
@@ -170,7 +145,7 @@ impl Attribute<Vec3> {
     }
 }
 
-impl AttributeBase for Attribute<Vec4> {
+impl AttributeBase for Attribute<Vec4<f32>> {
     fn from_parts(name: &'static str, location: u32) -> Self {
         Attribute {
             name,
@@ -180,7 +155,7 @@ impl AttributeBase for Attribute<Vec4> {
     }
 }
 
-impl Attribute<Vec4> {
+impl Attribute<Vec4<f32>> {
     pub fn attach_vbo(&self, vbo: &VBO) {
         vbo.bind();
 
@@ -208,7 +183,7 @@ pub struct Uniform<V> {
     value: V,
 }
 
-impl UniformBase for Uniform<Mat4> {
+impl UniformBase for Uniform<Mat4<f32>> {
     fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
         Uniform {
             name,
@@ -218,9 +193,9 @@ impl UniformBase for Uniform<Mat4> {
     }
 }
 
-impl Uniform<Mat4> {
+impl Uniform<Mat4<f32>> {
     pub fn set_value(&mut self, value: Matrix4<f32>) {
-        self.value = Mat4(value);
+        self.value = Mat4::new(value);
 
         context::with(|ctx| {
             ctx.uniform_matrix4fv_with_f32_array(Some(&self.location), false, self.value.as_ref())
