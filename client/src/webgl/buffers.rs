@@ -1,20 +1,28 @@
 use crate::webgl::context::{self, Context};
+use std::marker::PhantomData;
 
-pub struct VBO {
+pub struct VBO<T> {
     buf: web_sys::WebGlBuffer,
+    _type: PhantomData<T>,
 }
 
-impl VBO {
+impl<T> VBO<T>
+where
+    T: AsRef<[f32]>,
+{
     pub fn new() -> Self {
         context::with(|ctx| {
             // bufferの作成
             let buf = ctx.create_buffer().unwrap();
 
-            VBO { buf }
+            VBO {
+                buf,
+                _type: PhantomData,
+            }
         })
     }
 
-    pub fn with_data(data: &[f32]) -> Self {
+    pub fn with_data(data: &T) -> Self {
         let vbo = VBO::new();
         vbo.set_data(data);
         vbo
@@ -32,11 +40,11 @@ impl VBO {
         })
     }
 
-    pub fn set_data(&self, data: &[f32]) {
+    pub fn set_data(&self, data: &T) {
         self.bind();
 
         context::with(|ctx| {
-            let js_array = js_sys::Float32Array::from(data);
+            let js_array = js_sys::Float32Array::from(data.as_ref());
 
             // bufferにデータをセット
             ctx.buffer_data_with_array_buffer_view(
@@ -51,21 +59,29 @@ impl VBO {
 }
 
 /// インデックスバッファーオブジェクト
-pub struct IBO {
+/// 型パラメータ `T` は `Vec3<i16>` などを想定
+pub struct IBO<T> {
     buf: web_sys::WebGlBuffer,
+    _type: PhantomData<T>,
 }
 
-impl IBO {
+impl<T> IBO<T>
+where
+    T: AsRef<[i16]>,
+{
     pub fn new() -> Self {
         context::with(|ctx| {
             // bufferの作成
             let buf = ctx.create_buffer().unwrap();
 
-            IBO { buf }
+            IBO {
+                buf,
+                _type: PhantomData,
+            }
         })
     }
 
-    pub fn with_data(data: &[i16]) -> Self {
+    pub fn with_data(data: &T) -> Self {
         let vbo = IBO::new();
         vbo.set_data(data);
         vbo
@@ -83,11 +99,11 @@ impl IBO {
         })
     }
 
-    pub fn set_data(&self, data: &[i16]) {
+    pub fn set_data(&self, data: &T) {
         self.bind();
 
         context::with(|ctx| {
-            let js_array = js_sys::Int16Array::from(data);
+            let js_array = js_sys::Int16Array::from(data.as_ref());
 
             // bufferにデータをセット
             ctx.buffer_data_with_array_buffer_view(

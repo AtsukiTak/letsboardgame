@@ -134,7 +134,7 @@ impl AttributeBase for Attribute<Vec3<f32>> {
 }
 
 impl Attribute<Vec3<f32>> {
-    pub fn attach_vbo(&self, vbo: &VBO) {
+    pub fn attach_vbo(&self, vbo: &VBO<Vec3<f32>>) {
         vbo.bind();
 
         context::with(|ctx| {
@@ -156,7 +156,7 @@ impl AttributeBase for Attribute<Vec4<f32>> {
 }
 
 impl Attribute<Vec4<f32>> {
-    pub fn attach_vbo(&self, vbo: &VBO) {
+    pub fn attach_vbo(&self, vbo: &VBO<Vec4<f32>>) {
         vbo.bind();
 
         context::with(|ctx| {

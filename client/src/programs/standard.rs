@@ -18,13 +18,13 @@ impl StdProgram {
     pub fn new(model: Model, translater: Matrix4<f32>) -> Result<Self, JsValue> {
         let mut program = Program::<Params>::new(vert_shader()?, frag_shader()?)?;
 
-        let vert_vbo = VBO::with_data(model.positions.as_ref());
+        let vert_vbo = VBO::with_data(&model.positions);
         program.params.position.attach_vbo(&vert_vbo);
 
-        let colors_vbo = VBO::with_data(model.colors.as_ref());
+        let colors_vbo = VBO::with_data(&model.colors);
         program.params.color.attach_vbo(&colors_vbo);
 
-        let ibo = IBO::with_data(model.indexes.as_ref());
+        let ibo = IBO::with_data(&model.indexes);
         ibo.bind();
 
         program.params.mvp_matrix.set_value(translater);
