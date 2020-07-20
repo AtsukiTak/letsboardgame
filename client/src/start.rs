@@ -1,6 +1,6 @@
 use crate::core::context::{self, Context};
 use crate::{models::torus, programs::StdProgram};
-use cgmath::{prelude::*, Deg, Matrix4, Point3, Vector3};
+use cgmath::{prelude::*, Deg, Matrix4, Point3, Vector3, Vector4};
 use wasm_bindgen::{prelude::*, JsCast as _};
 
 pub async fn start() -> Result<(), JsValue> {
@@ -14,6 +14,7 @@ pub async fn start() -> Result<(), JsValue> {
     let translater = vp_matrix * m_matrix(0);
 
     let mut program = StdProgram::new(model, translater, light_dir)?;
+    program.set_ambient_color(Vector4::new(0.1, 0.1, 0.1, 0.1));
 
     let mut frame = 1;
     loop {

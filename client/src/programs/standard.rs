@@ -6,7 +6,7 @@ use crate::core::{
     types::{Mat4, Vec3, Vec4},
 };
 use crate::models::Model;
-use cgmath::{prelude::*, Matrix4, Vector3};
+use cgmath::{prelude::*, Matrix4, Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct StdProgram {
@@ -61,6 +61,10 @@ impl StdProgram {
         self.program.params.inv_matrix.set_value(inv_translater);
     }
 
+    pub fn set_ambient_color(&mut self, ambient_color: Vector4<f32>) {
+        self.program.params.ambient_color.set_value(ambient_color);
+    }
+
     pub fn render(&self) {
         context::with(|ctx| {
             ctx.draw_elements_with_i32(
@@ -80,6 +84,7 @@ struct Params {
     mvp_matrix: Uniform<Mat4<f32>>,
     inv_matrix: Uniform<Mat4<f32>>,
     light_direction: Uniform<Vector3<f32>>,
+    ambient_color: Uniform<Vector4<f32>>,
 }
 
 impl ParamsBase for Params {
@@ -91,6 +96,7 @@ impl ParamsBase for Params {
             mvp_matrix: visitor.visit_uniform("mvpMatrix")?,
             inv_matrix: visitor.visit_uniform("invMatrix")?,
             light_direction: visitor.visit_uniform("lightDirection")?,
+            ambient_color: visitor.visit_uniform("ambientColor")?,
         })
     }
 }

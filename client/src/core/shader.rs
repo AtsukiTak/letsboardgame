@@ -3,7 +3,7 @@ use super::{
     context::{self, Context},
     types::{Mat4, Vec3, Vec4},
 };
-use cgmath::{Matrix4, Vector3};
+use cgmath::{Matrix4, Vector3, Vector4};
 use std::marker::PhantomData;
 use wasm_bindgen::JsValue;
 
@@ -223,6 +223,32 @@ impl Uniform<Vector3<f32>> {
                 self.value.x,
                 self.value.y,
                 self.value.z,
+            )
+        })
+    }
+}
+
+impl UniformBase for Uniform<Vector4<f32>> {
+    fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
+        Uniform {
+            name,
+            location,
+            value: Vector4::new(0.0, 0.0, 0.0, 0.0),
+        }
+    }
+}
+
+impl Uniform<Vector4<f32>> {
+    pub fn set_value(&mut self, value: Vector4<f32>) {
+        self.value = value;
+
+        context::with(|ctx| {
+            ctx.uniform4f(
+                Some(&self.location),
+                self.value.x,
+                self.value.y,
+                self.value.z,
+                self.value.w,
             )
         })
     }
