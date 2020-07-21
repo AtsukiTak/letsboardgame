@@ -1,10 +1,10 @@
 use cgmath::{prelude::*, BaseFloat, Matrix4};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Vec3<T>(Vec<T>);
+pub struct Vec3<T>(pub Vec<T>);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Vec4<T>(Vec<T>);
+pub struct Vec4<T>(pub Vec<T>);
 
 impl<T> Vec3<T> {
     pub fn new() -> Self {

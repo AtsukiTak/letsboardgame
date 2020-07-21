@@ -34,3 +34,7 @@ features = [
   "WebGlUniformLocation",
   "Window"
 ]
+
+[dev-dependencies]
+approx = "0.3"
+wasm-bindgen-test = "0.3.0"
