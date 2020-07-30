@@ -85,7 +85,7 @@ impl<'a> ParamsVisitor<'a> {
         let loc = self.ctx.get_attrib_location(self.program, name);
 
         if loc < 0 {
-            let msg = format!("missing vertex attribute \"{}\"", name);
+            let msg = format!("missing attribute \"{}\"", name);
             return Err(JsValue::from_str(msg.as_str()));
         }
 
@@ -101,7 +101,7 @@ impl<'a> ParamsVisitor<'a> {
         if let Some(loc) = self.ctx.get_uniform_location(self.program, name) {
             Ok(T::from_parts(name, loc))
         } else {
-            let msg = format!("missing vertex uniform \"{}\"", name);
+            let msg = format!("missing uniform \"{}\"", name);
             Err(JsValue::from_str(msg.as_str()))
         }
     }

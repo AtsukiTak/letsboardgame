@@ -32,7 +32,7 @@ pub async fn start() -> Result<(), JsValue> {
 
         frame = frame + 1;
 
-        gloo_timers::future::TimeoutFuture::new(1000 / 30).await;
+        gloo_timers::future::TimeoutFuture::new(1000 / 60).await;
     }
 
     Ok(())
