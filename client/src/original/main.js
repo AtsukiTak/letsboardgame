@@ -11,9 +11,21 @@ export function start() {
   var v_shader = create_shader(gl, "vs");
   var f_shader = create_shader(gl, "fs");
 
+  // トーラスの頂点データを生成
+  var torusData = torus(32, 32, 1.0, 2.0);
+
+  // カリングと深度テストを有効にする
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.LEQUAL);
+  gl.enable(gl.CULL_FACE);
+
   // プログラムオブジェクトの生成とリンク
   var prg = create_program(gl, v_shader, f_shader);
 
+  start_inner(gl, torusData, prg);
+}
+
+export function start_inner(gl, indexLen, prg) {
   // attributeLocationを配列に取得
   var attLocation = new Array();
   attLocation[0] = gl.getAttribLocation(prg, "position");
@@ -26,12 +38,10 @@ export function start() {
   attStride[1] = 3;
   attStride[2] = 4;
 
-  // トーラスの頂点データを生成
-  var torusData = torus(32, 32, 1.0, 2.0);
-  var position = torusData[0];
-  var normal = torusData[1];
-  var color = torusData[2];
-  var index = torusData[3];
+  var position = model[0];
+  var normal = model[1];
+  var color = model[2];
+  var index = model[3];
 
   // VBOの生成
   var pos_vbo = create_vbo(gl, position);
@@ -55,23 +65,6 @@ export function start() {
   uniLocation[3] = gl.getUniformLocation(prg, "eyeDirection");
   uniLocation[4] = gl.getUniformLocation(prg, "ambientColor");
 
-  // minMatrix.js を用いた行列関連処理
-  // matIVオブジェクトを生成
-  var m = new matIV();
-
-  // 各種行列の生成と初期化
-  var mMatrix = m.identity(m.create());
-  var vMatrix = m.identity(m.create());
-  var pMatrix = m.identity(m.create());
-  var tmpMatrix = m.identity(m.create());
-  var mvpMatrix = m.identity(m.create());
-  var invMatrix = m.identity(m.create());
-
-  // ビュー×プロジェクション座標変換行列
-  m.lookAt([0.0, 0.0, 20.0], [0, 0, 0], [0, 1, 0], vMatrix);
-  m.perspective(45, c.width / c.height, 0.1, 100, pMatrix);
-  m.multiply(pMatrix, vMatrix, tmpMatrix);
-
   // 平行光源の向き
   var lightDirection = [-0.5, 0.5, 0.5];
 
@@ -81,13 +74,29 @@ export function start() {
   // 環境光の色
   var ambientColor = [0.1, 0.1, 0.1, 1.0];
 
+  gl.uniform3fv(uniLocation[2], lightDirection);
+  gl.uniform3fv(uniLocation[3], eyeDirection);
+  gl.uniform4fv(uniLocation[4], ambientColor);
+
+  rendering_loop(gl, indexLen, uniLocation[0], uniLocation[1]);
+}
+
+export function rendering_loop(gl, indexLength, mvpMatrixLoc, invMatrixLoc) {
+  var m = new matIV();
+  var mMatrix = m.identity(m.create());
+  var vMatrix = m.identity(m.create());
+  var pMatrix = m.identity(m.create());
+  var tmpMatrix = m.identity(m.create());
+  var mvpMatrix = m.identity(m.create());
+  var invMatrix = m.identity(m.create());
+
+  // ビュー×プロジェクション座標変換行列
+  m.lookAt([0.0, 0.0, 20.0], [0, 0, 0], [0, 1, 0], vMatrix);
+  m.perspective(45, 1, 0.1, 100, pMatrix);
+  m.multiply(pMatrix, vMatrix, tmpMatrix);
+
   // カウンタの宣言
   var count = 0;
-
-  // カリングと深度テストを有効にする
-  gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
-  gl.enable(gl.CULL_FACE);
 
   // 恒常ループ
   const render = () => {
@@ -111,14 +120,11 @@ export function start() {
     m.inverse(mMatrix, invMatrix);
 
     // uniform変数の登録
-    gl.uniformMatrix4fv(uniLocation[0], false, mvpMatrix);
-    gl.uniformMatrix4fv(uniLocation[1], false, invMatrix);
-    gl.uniform3fv(uniLocation[2], lightDirection);
-    gl.uniform3fv(uniLocation[3], eyeDirection);
-    gl.uniform4fv(uniLocation[4], ambientColor);
+    gl.uniformMatrix4fv(mvpMatrixLoc, false, mvpMatrix);
+    gl.uniformMatrix4fv(invMatrixLoc, false, invMatrix);
 
     // モデルの描画
-    gl.drawElements(gl.TRIANGLES, index.length, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.TRIANGLES, indexLength, gl.UNSIGNED_SHORT, 0);
 
     // コンテキストの再描画
     gl.flush();
@@ -126,11 +132,12 @@ export function start() {
     // ループのために再帰呼び出し
     setTimeout(render, 1000 / 30);
   };
+
   render();
 }
 
 // シェーダを生成する関数
-function create_shader(gl, id) {
+export function create_shader(gl, id) {
   // シェーダを格納する変数
   var shader;
 
