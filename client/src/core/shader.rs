@@ -178,9 +178,9 @@ pub trait UniformBase {
 
 pub struct Uniform<V> {
     #[allow(dead_code)]
-    name: &'static str,
-    location: web_sys::WebGlUniformLocation,
-    value: V,
+    pub name: &'static str,
+    pub location: web_sys::WebGlUniformLocation,
+    pub value: V,
 }
 
 impl UniformBase for Uniform<Mat4<f32>> {

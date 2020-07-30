@@ -6,7 +6,7 @@ use wasm_bindgen::JsValue;
 
 #[allow(dead_code)]
 pub struct Program<P> {
-    program: web_sys::WebGlProgram,
+    pub program: web_sys::WebGlProgram,
     vert_shader: VertexShader,
     frag_shader: FragmentShader,
     pub params: P,
