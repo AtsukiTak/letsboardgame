@@ -6,24 +6,20 @@ use crate::core::{
     types::{Mat4, Vec3, Vec4},
 };
 use crate::models::Model;
-use cgmath::{prelude::*, Matrix4, Vector3, Vector4};
+use cgmath::{Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct StdProgram {
-    program: Program<Params>,
-    model: Model,
+    pub program: Program<Params>,
+    pub model: Model,
 }
 
 impl StdProgram {
-    pub fn new(
-        model: Model,
-        translater: Matrix4<f32>,
-        light_dir: Vector3<f32>,
-    ) -> Result<Self, JsValue> {
+    pub fn new(model: Model) -> Result<Self, JsValue> {
         let vert_shader = VertexShader::compile(include_str!("standard.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("standard.frag"))?;
 
-        let mut program = Program::<Params>::new(vert_shader, frag_shader)?;
+        let program = Program::<Params>::new(vert_shader, frag_shader)?;
 
         // "position" attributeの設定
         let vert_vbo = VBO::with_data(&model.positions);
@@ -41,28 +37,11 @@ impl StdProgram {
         let ibo = IBO::with_data(&model.indexes);
         ibo.bind();
 
-        // "mvpMatrix" uniformの設定
-        program.params.mvp_matrix.set_value(translater);
-
-        // "invMatrix" uniformの設定
-        let inv_translater = translater.invert().unwrap();
-        program.params.inv_matrix.set_value(inv_translater);
-
-        // "lightDirection" uniformの設定
-        program.params.light_direction.set_value(light_dir);
-
         Ok(StdProgram { program, model })
     }
 
-    pub fn set_translater(&mut self, translater: Matrix4<f32>) {
-        self.program.params.mvp_matrix.set_value(translater);
-
-        let inv_translater = translater.invert().unwrap();
-        self.program.params.inv_matrix.set_value(inv_translater);
-    }
-
-    pub fn set_ambient_color(&mut self, ambient_color: Vector4<f32>) {
-        self.program.params.ambient_color.set_value(ambient_color);
+    pub fn params_mut(&mut self) -> &mut Params {
+        &mut self.program.params
     }
 
     pub fn render(&self) {
@@ -72,19 +51,20 @@ impl StdProgram {
                 self.model.indexes.as_ref().len() as i32,
                 Context::UNSIGNED_SHORT,
                 0,
-            )
+            );
         })
     }
 }
 
-struct Params {
-    position: Attribute<Vec3<f32>>,
-    normal: Attribute<Vec3<f32>>,
-    color: Attribute<Vec4<f32>>,
-    mvp_matrix: Uniform<Mat4<f32>>,
-    inv_matrix: Uniform<Mat4<f32>>,
-    light_direction: Uniform<Vector3<f32>>,
-    ambient_color: Uniform<Vector4<f32>>,
+pub struct Params {
+    pub position: Attribute<Vec3<f32>>,
+    pub normal: Attribute<Vec3<f32>>,
+    pub color: Attribute<Vec4<f32>>,
+    pub mvp_matrix: Uniform<Mat4<f32>>,
+    pub inv_matrix: Uniform<Mat4<f32>>,
+    pub light_direction: Uniform<Vector3<f32>>,
+    pub eye_direction: Uniform<Vector3<f32>>,
+    pub ambient_color: Uniform<Vector4<f32>>,
 }
 
 impl ParamsBase for Params {
@@ -96,6 +76,7 @@ impl ParamsBase for Params {
             mvp_matrix: visitor.visit_uniform("mvpMatrix")?,
             inv_matrix: visitor.visit_uniform("invMatrix")?,
             light_direction: visitor.visit_uniform("lightDirection")?,
+            eye_direction: visitor.visit_uniform("eyeDirection")?,
             ambient_color: visitor.visit_uniform("ambientColor")?,
         })
     }

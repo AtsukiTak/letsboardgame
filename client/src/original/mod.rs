@@ -1,6 +1,5 @@
-use js_sys::Array;
 use wasm_bindgen::prelude::*;
-use web_sys::{WebGlProgram, WebGlRenderingContext, WebGlShader, WebGlUniformLocation};
+use web_sys::{WebGlProgram, WebGlRenderingContext, WebGlUniformLocation};
 
 #[wasm_bindgen(module = "/src/original/main.js")]
 extern "C" {

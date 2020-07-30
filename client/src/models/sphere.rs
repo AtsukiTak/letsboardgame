@@ -1,6 +1,5 @@
 use super::Model;
 use crate::core::types::{Vec3, Vec4};
-use cgmath::Vector3;
 use palette::{Hsva, Srgba};
 
 pub fn sphere(row: usize, column: usize, radius: f32) -> Model {
