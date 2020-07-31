@@ -1,10 +1,10 @@
-use super::{Model, Vec3, Vec4};
+use super::{Mesh, Vec3, Vec4};
 use cgmath::{prelude::*, Rad};
 use palette::{Hsva, Srgba};
 
 const CIRCLE_RAD: Rad<f32> = Rad(std::f32::consts::PI * 2.0);
 
-pub fn torus(tube_radius: f32, tube_steps: u32, core_radius: f32, core_steps: u32) -> Model {
+pub fn torus(tube_radius: f32, tube_steps: u32, core_radius: f32, core_steps: u32) -> Mesh {
     let mut positions = Vec3::new();
     let mut colors = Vec4::new();
     let mut indexes = Vec3::new();
@@ -65,7 +65,7 @@ pub fn torus(tube_radius: f32, tube_steps: u32, core_radius: f32, core_steps: u3
         }
     }
 
-    Model {
+    Mesh {
         positions,
         colors,
         indexes,
@@ -83,7 +83,7 @@ mod tests {
 
     // テキスト（https://wgld.org/d/webgl/w021.html）に載っている
     // torus生成関数の単純な移植
-    fn torus_origin_in_rust(row: usize, column: usize, irad: f32, orad: f32) -> Model {
+    fn torus_origin_in_rust(row: usize, column: usize, irad: f32, orad: f32) -> Mesh {
         let mut pos = Vec3::new();
         let mut nor = Vec3::new();
         let mut col = Vec4::new();
@@ -121,7 +121,7 @@ mod tests {
             }
         }
 
-        Model {
+        Mesh {
             positions: pos,
             colors: col,
             indexes: idx,

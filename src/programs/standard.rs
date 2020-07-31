@@ -5,17 +5,17 @@ use crate::core::{
     shader::{FragmentShader, VertexShader},
     types::{Mat4, Vec3, Vec4},
 };
-use crate::models::Model;
+use crate::meshes::Mesh;
 use cgmath::{Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct StdProgram {
     pub program: Program<Params>,
-    pub model: Model,
+    pub model: Mesh,
 }
 
 impl StdProgram {
-    pub fn new(model: Model) -> Result<Self, JsValue> {
+    pub fn new(model: Mesh) -> Result<Self, JsValue> {
         let vert_shader = VertexShader::compile(include_str!("standard.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("standard.frag"))?;
 

@@ -1,8 +1,8 @@
-use super::Model;
+use super::Mesh;
 use crate::core::types::{Vec3, Vec4};
 use palette::{Hsva, Srgba};
 
-pub fn sphere(row: usize, column: usize, radius: f32) -> Model {
+pub fn sphere(row: usize, column: usize, radius: f32) -> Mesh {
     let mut pos = Vec3::new();
     let mut nor = Vec3::new();
     let mut col = Vec4::new();
@@ -42,7 +42,7 @@ pub fn sphere(row: usize, column: usize, radius: f32) -> Model {
         }
     }
 
-    Model {
+    Mesh {
         positions: pos,
         colors: col,
         normals: nor,
