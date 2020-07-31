@@ -1,23 +1,23 @@
-use crate::{core::color::Color, meshes::Mesh};
+use crate::{core::color::Color, object::Object};
 
 pub struct Scene {
-    meshes: Vec<Mesh>,
+    objects: Vec<Object>,
     pub background: Color,
 }
 
 impl Scene {
     pub fn new() -> Self {
         Scene {
-            meshes: Vec::new(),
+            objects: Vec::new(),
             background: Color::black(),
         }
     }
 
-    pub fn meshes(&self) -> &[Mesh] {
-        &self.meshes[..]
+    pub fn objects(&self) -> &[Object] {
+        &self.objects[..]
     }
 
-    pub fn add(&mut self, mesh: Mesh) {
-        self.meshes.push(mesh);
+    pub fn add(&mut self, object: Object) {
+        self.objects.push(object);
     }
 }

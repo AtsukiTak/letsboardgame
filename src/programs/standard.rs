@@ -6,10 +6,10 @@ use crate::{
         shader::{FragmentShader, VertexShader},
         types::{Mat4, Vec3, Vec4},
     },
-    meshes::Mesh,
+    object::Object,
     scene::Scene,
 };
-use cgmath::{Vector3, Vector4};
+use cgmath::{prelude::*, Matrix4, Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct StdProgram {
@@ -34,15 +34,24 @@ impl StdProgram {
         &mut self.program.params
     }
 
-    pub fn render(&self) {
+    pub fn render(&mut self, vp_matrix: Matrix4<f32>) {
         context::clear_color(&self.scene.background);
 
-        for mesh in self.scene.meshes() {
-            self.render_mesh(mesh);
+        for object in self.scene.objects() {
+            // 各uniform変数の設定
+            let m_matrix = object.transform.matrix();
+            let mvp_matrix = vp_matrix * m_matrix;
+            let inv_matrix = m_matrix.invert().unwrap();
+            self.program.params.mvp_matrix.set_value(mvp_matrix);
+            self.program.params.inv_matrix.set_value(inv_matrix);
+
+            self.render_object(object);
         }
     }
 
-    fn render_mesh(&self, mesh: &Mesh) {
+    fn render_object(&self, object: &Object) {
+        let mesh = &object.mesh;
+
         // "position" attributeの設定
         let vert_vbo = VBO::with_data(&mesh.positions);
         self.program.params.position.attach_vbo(&vert_vbo);
