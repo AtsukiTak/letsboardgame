@@ -114,26 +114,6 @@ version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "lbg-client"
-version = "0.1.0"
-dependencies = [
- "approx 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "cgmath 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "console_error_panic_hook 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "gloo-timers 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "js-sys 0.3.42 (registry+https://github.com/rust-lang/crates.io-index)",
- "palette 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "wasm-bindgen 0.2.65 (registry+https://github.com/rust-lang/crates.io-index)",
- "wasm-bindgen-futures 0.4.15 (registry+https://github.com/rust-lang/crates.io-index)",
- "wasm-bindgen-test 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
- "web-sys 0.3.42 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "lbg-server"
-version = "0.1.0"
-
-[[package]]
 name = "libc"
 version = "0.2.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -399,6 +379,22 @@ dependencies = [
  "proc-macro2 1.0.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "quote 1.0.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "unicode-xid 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "three-wasm"
+version = "0.1.0"
+dependencies = [
+ "approx 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cgmath 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "console_error_panic_hook 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gloo-timers 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "js-sys 0.3.42 (registry+https://github.com/rust-lang/crates.io-index)",
+ "palette 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasm-bindgen 0.2.65 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasm-bindgen-futures 0.4.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasm-bindgen-test 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "web-sys 0.3.42 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
