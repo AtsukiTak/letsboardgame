@@ -1,11 +1,12 @@
-use crate::{
+use cgmath::{prelude::*, vec3, vec4, Deg, Matrix4, Point3};
+use three_wasm::{
     core::context::{self, Context},
     models::torus,
     programs::standard::StdProgram,
 };
-use cgmath::{prelude::*, vec3, vec4, Deg, Matrix4, Point3};
 use wasm_bindgen::{prelude::*, JsCast as _};
 
+#[wasm_bindgen(start)]
 pub async fn start() -> Result<(), JsValue> {
     initialize()?;
 
@@ -93,7 +94,7 @@ fn m_matrix(frame: usize) -> Matrix4<f32> {
  * Test用
  * ========
  */
-use crate::original;
+use three_wasm::original;
 
 #[allow(dead_code)]
 pub async fn start_test() -> Result<(), JsValue> {
