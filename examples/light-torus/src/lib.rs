@@ -1,7 +1,10 @@
 use cgmath::{prelude::*, vec3, vec4, Deg, Matrix4, Point3};
 use three_wasm::{
-    core::context::{self, Context},
-    meshes::torus,
+    core::{
+        color::Color,
+        context::{self, Context},
+    },
+    meshes,
     programs::standard::StdProgram,
 };
 use wasm_bindgen::{prelude::*, JsCast as _};
@@ -10,8 +13,8 @@ use wasm_bindgen::{prelude::*, JsCast as _};
 pub async fn start() -> Result<(), JsValue> {
     initialize()?;
 
-    let mesh = torus(1.0, 64, 2.0, 64);
-    // let mesh = sphere(32, 32, 2.0);
+    let mesh = meshes::torus(1.0, 64, 2.0, 64);
+    // let mesh = meshes::sphere(32, 32, 2.0);
 
     let mut program = StdProgram::new()?;
 
@@ -21,6 +24,7 @@ pub async fn start() -> Result<(), JsValue> {
     params.eye_direction.set_value(vec3(0.0, 0.0, 20.0));
 
     program.scene.add(mesh);
+    program.scene.background = Color::rgb(0, 100, 150);
 
     let vp_matrix = vp_matrix();
     let mut frame = 1;
@@ -61,7 +65,6 @@ fn initialize() -> Result<(), JsValue> {
 
 fn clear() {
     context::with(|ctx| {
-        ctx.clear_color(0.0, 0.0, 0.0, 1.0);
         ctx.clear_depth(1.0);
         ctx.clear(Context::COLOR_BUFFER_BIT | Context::DEPTH_BUFFER_BIT);
     });
@@ -114,7 +117,7 @@ pub async fn start_test() -> Result<(), JsValue> {
     context::enable_depth_test();
     context::with(|ctx| ctx.depth_func(Context::LEQUAL));
 
-    let mesh = torus(1.0, 32, 2.0, 32);
+    let mesh = meshes::torus(1.0, 32, 2.0, 32);
     let index_len = mesh.indexes.as_ref().len();
 
     let mut program = StdProgram::new()?;
