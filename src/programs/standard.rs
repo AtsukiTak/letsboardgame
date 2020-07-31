@@ -1,43 +1,33 @@
-use crate::core::{
-    buffers::{IBO, VBO},
-    context::{self, Context},
-    program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
-    shader::{FragmentShader, VertexShader},
-    types::{Mat4, Vec3, Vec4},
+use crate::{
+    core::{
+        buffers::{IBO, VBO},
+        context::{self, Context},
+        program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
+        shader::{FragmentShader, VertexShader},
+        types::{Mat4, Vec3, Vec4},
+    },
+    meshes::Mesh,
+    scene::Scene,
 };
-use crate::meshes::Mesh;
 use cgmath::{Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct StdProgram {
     pub program: Program<Params>,
-    pub model: Mesh,
+    pub scene: Scene,
 }
 
 impl StdProgram {
-    pub fn new(model: Mesh) -> Result<Self, JsValue> {
+    pub fn new() -> Result<Self, JsValue> {
         let vert_shader = VertexShader::compile(include_str!("standard.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("standard.frag"))?;
 
         let program = Program::<Params>::new(vert_shader, frag_shader)?;
 
-        // "position" attributeの設定
-        let vert_vbo = VBO::with_data(&model.positions);
-        program.params.position.attach_vbo(&vert_vbo);
-
-        // "normal" attributeの設定
-        let normal_vbo = VBO::with_data(&model.normals);
-        program.params.normal.attach_vbo(&normal_vbo);
-
-        // "color" attributeの設定
-        let colors_vbo = VBO::with_data(&model.colors);
-        program.params.color.attach_vbo(&colors_vbo);
-
-        // Index Bufferの設定
-        let ibo = IBO::with_data(&model.indexes);
-        ibo.bind();
-
-        Ok(StdProgram { program, model })
+        Ok(StdProgram {
+            program,
+            scene: Scene::new(),
+        })
     }
 
     pub fn params_mut(&mut self) -> &mut Params {
@@ -45,10 +35,32 @@ impl StdProgram {
     }
 
     pub fn render(&self) {
+        for mesh in self.scene.meshes() {
+            self.render_mesh(mesh);
+        }
+    }
+
+    fn render_mesh(&self, mesh: &Mesh) {
+        // "position" attributeの設定
+        let vert_vbo = VBO::with_data(&mesh.positions);
+        self.program.params.position.attach_vbo(&vert_vbo);
+
+        // "normal" attributeの設定
+        let normal_vbo = VBO::with_data(&mesh.normals);
+        self.program.params.normal.attach_vbo(&normal_vbo);
+
+        // "color" attributeの設定
+        let colors_vbo = VBO::with_data(&mesh.colors);
+        self.program.params.color.attach_vbo(&colors_vbo);
+
+        // Index Bufferの設定
+        let ibo = IBO::with_data(&mesh.indexes);
+        ibo.bind();
+
         context::with(|ctx| {
             ctx.draw_elements_with_i32(
                 Context::TRIANGLES,
-                self.model.indexes.as_ref().len() as i32,
+                mesh.indexes.as_ref().len() as i32,
                 Context::UNSIGNED_SHORT,
                 0,
             );
