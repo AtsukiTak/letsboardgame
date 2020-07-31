@@ -1,5 +1,4 @@
 pub mod core;
-pub mod min_matrix;
 pub mod models;
 pub mod original;
 pub mod programs;

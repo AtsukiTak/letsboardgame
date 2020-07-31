@@ -1,8 +1,8 @@
 use crate::core::{
     buffers::{IBO, VBO},
     context::{self, Context},
-    program::Program,
-    shader::{Attribute, FragmentShader, ParamsBase, ParamsVisitor, Uniform, VertexShader},
+    program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
+    shader::{FragmentShader, VertexShader},
     types::{Mat4, Vec3, Vec4},
 };
 use crate::models::Model;
