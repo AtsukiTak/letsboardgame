@@ -35,6 +35,8 @@ impl StdProgram {
     }
 
     pub fn render(&self) {
+        context::clear_color(&self.scene.background);
+
         for mesh in self.scene.meshes() {
             self.render_mesh(mesh);
         }

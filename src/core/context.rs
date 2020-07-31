@@ -1,3 +1,4 @@
+use super::color::Color;
 use std::cell::RefCell;
 use wasm_bindgen::{JsCast as _, JsValue};
 
@@ -24,6 +25,10 @@ where
     F: FnOnce(&Context) -> T,
 {
     GLOBAL_CONTEXT_CELL.with(|cell| func(cell.borrow().as_ref().unwrap()))
+}
+
+pub fn clear_color(color: &Color) {
+    with(|ctx| ctx.clear_color(color.r as f32, color.g as f32, color.b as f32, color.a))
 }
 
 pub fn enable(cap: u32) {
