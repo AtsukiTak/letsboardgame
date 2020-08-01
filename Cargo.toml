@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 cgmath = "0.17.0"
 console_error_panic_hook = "0.1.6"
+derive_more = "0.99.9"
 gloo-timers = { version = "0.2.1", features = ["futures"] }
 js-sys = "0.3.41"
 palette = "0.5.0"
