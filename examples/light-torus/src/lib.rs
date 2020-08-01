@@ -14,7 +14,7 @@ pub async fn start() -> Result<(), JsValue> {
     let mesh = meshes::torus(1.0, 64, 2.0, 64);
     // let mesh = meshes::sphere(32, 32, 2.0);
     let object = Object::new(mesh);
-    object.transform.rotate.axis.set(1.0, 0.0, 0.0);
+    object.transform.rotate.axis.set(0.0, 1.0, 1.0);
 
     let mut program = StdProgram::new()?;
 

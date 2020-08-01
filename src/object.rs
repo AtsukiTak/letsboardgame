@@ -1,5 +1,5 @@
 use crate::meshes::Mesh;
-use cgmath::{vec3, Matrix4, Rad, Vector3};
+use cgmath::{prelude::*, vec3, Matrix4, Rad, Vector3};
 use std::ops::AddAssign;
 use std::{cell::Cell, rc::Rc};
 
@@ -49,8 +49,8 @@ impl Transform {
     // モデル座標変換行列を計算する
     pub fn matrix(&self) -> Matrix4<f32> {
         let move_matrix = Matrix4::from_translation(self.pos.get());
-        let rotate_matrix =
-            Matrix4::from_axis_angle(self.rotate.axis.get(), self.rotate.angle.get());
+        let rotate_axis = self.rotate.axis.get().normalize();
+        let rotate_matrix = Matrix4::from_axis_angle(rotate_axis, self.rotate.angle.get());
         let scale = self.scale.get();
         let scale_matrix = Matrix4::from_nonuniform_scale(scale.x, scale.y, scale.z);
 
