@@ -25,24 +25,24 @@ impl Object {
 /// ## Example
 /// let transform = Transform::new();
 /// transform.rotate.axis.set(0.0, 1.0, 1.0);
-/// transform.rotate.angle += Rad(1.0);
-/// transform.pos.x += 1;
-#[derive(Debug, Clone)]
+/// transform.rotate.angle.add(Rad(1.0));
+/// transform.pos.x.add(1);
+#[derive(Debug)]
 pub struct Transform {
     // 移動方向
-    pub pos: AtomicVector3,
+    pub pos: SharedVector3,
     // 回転軸
     pub rotate: TransformRotate,
     // x, y, z 方向への拡大率
-    pub scale: AtomicVector3,
+    pub scale: SharedVector3,
 }
 
 impl Transform {
     pub fn new() -> Self {
         Transform {
-            pos: AtomicVector3::zero(),
+            pos: SharedVector3::zero(),
             rotate: TransformRotate::new(),
-            scale: AtomicVector3::new(1.0, 1.0, 1.0),
+            scale: SharedVector3::new(1.0, 1.0, 1.0),
         }
     }
 
@@ -61,24 +61,24 @@ impl Transform {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct AtomicVector3 {
-    pub x: Atomic<f32>,
-    pub y: Atomic<f32>,
-    pub z: Atomic<f32>,
+#[derive(Debug)]
+pub struct SharedVector3 {
+    pub x: Shared<f32>,
+    pub y: Shared<f32>,
+    pub z: Shared<f32>,
 }
 
-impl AtomicVector3 {
+impl SharedVector3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
-        AtomicVector3 {
-            x: Atomic::new(x),
-            y: Atomic::new(y),
-            z: Atomic::new(z),
+        SharedVector3 {
+            x: Shared::new(x),
+            y: Shared::new(y),
+            z: Shared::new(z),
         }
     }
 
     pub fn zero() -> Self {
-        AtomicVector3::new(0.0, 0.0, 0.0)
+        SharedVector3::new(0.0, 0.0, 0.0)
     }
 
     pub fn get(&self) -> Vector3<f32> {
@@ -92,15 +92,15 @@ impl AtomicVector3 {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct Atomic<T: Copy>(Cell<T>);
+#[derive(Debug)]
+pub struct Shared<T: Copy>(Cell<T>);
 
-impl<T> Atomic<T>
+impl<T> Shared<T>
 where
     T: Copy,
 {
     pub fn new(t: T) -> Self {
-        Atomic(Cell::new(t))
+        Shared(Cell::new(t))
     }
 
     pub fn get(&self) -> T {
@@ -111,7 +111,15 @@ where
         self.0.set(t);
     }
 
-    pub fn add_assign<U>(&self, other: U)
+    /// This method is almost equivalent to `+=` operation except that this does not require
+    /// mutable reference.
+    ///
+    /// ```rust
+    /// let v = Shared::new(1);
+    /// v.add(1);
+    /// assert_eq!(v.get(), 2);
+    /// ```
+    pub fn add<U>(&self, other: U)
     where
         T: AddAssign<U>,
     {
@@ -121,17 +129,17 @@ where
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct TransformRotate {
-    pub axis: AtomicVector3,
-    pub angle: Atomic<Rad<f32>>,
+    pub axis: SharedVector3,
+    pub angle: Shared<Rad<f32>>,
 }
 
 impl TransformRotate {
     fn new() -> Self {
         TransformRotate {
-            axis: AtomicVector3::new(1.0, 0.0, 0.0),
-            angle: Atomic::new(Rad(0.0)),
+            axis: SharedVector3::new(1.0, 0.0, 0.0),
+            angle: Shared::new(Rad(0.0)),
         }
     }
 }

@@ -29,7 +29,7 @@ pub async fn start() -> Result<(), JsValue> {
     loop {
         clear();
 
-        object.transform.rotate.angle.add_assign(Rad(0.01));
+        object.transform.rotate.angle.add(Rad(0.01));
 
         program.render(vp_matrix);
 
