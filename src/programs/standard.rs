@@ -1,4 +1,5 @@
 use crate::{
+    camera::Camera,
     core::{
         buffers::{IBO, VBO},
         context::{self, Context},
@@ -9,12 +10,13 @@ use crate::{
     object::Object,
     scene::Scene,
 };
-use cgmath::{prelude::*, Matrix4, Vector3, Vector4};
+use cgmath::{prelude::*, Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct StdProgram {
     pub program: Program<Params>,
     pub scene: Scene,
+    pub camera: Camera,
 }
 
 impl StdProgram {
@@ -27,6 +29,7 @@ impl StdProgram {
         Ok(StdProgram {
             program,
             scene: Scene::new(),
+            camera: Camera::new(),
         })
     }
 
@@ -34,8 +37,10 @@ impl StdProgram {
         &mut self.program.params
     }
 
-    pub fn render(&mut self, vp_matrix: Matrix4<f32>) {
+    pub fn render(&mut self) {
         context::clear_color(&self.scene.background);
+
+        let vp_matrix = self.camera.matrix();
 
         for object in self.scene.objects() {
             // 各uniform変数の設定
