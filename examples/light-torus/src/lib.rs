@@ -1,4 +1,4 @@
-use cgmath::{vec3, vec4, Deg, Matrix4, Point3, Rad};
+use cgmath::{vec3, vec4, Rad};
 use three_wasm::{
     core::context::{self, Context},
     meshes,
@@ -18,6 +18,13 @@ pub async fn start() -> Result<(), JsValue> {
 
     let mut program = StdProgram::new()?;
 
+    // カメラの設定
+    program.camera.pos.z = 20.0;
+    // 0.0, 0.0, 1.0 にすると何も映らなくなる...
+    program.camera.up = vec3(0.0, 1.0, 0.0);
+
+    // その他の設定
+    // TODO これも抽象化する
     let params = program.params_mut();
     params.light_direction.set_value(vec3(-0.5, 0.5, 0.5));
     params.ambient_color.set_value(vec4(0.1, 0.1, 0.1, 0.1));
@@ -25,13 +32,12 @@ pub async fn start() -> Result<(), JsValue> {
 
     program.scene.add(&object);
 
-    let vp_matrix = vp_matrix();
     loop {
         clear();
 
         object.transform.rotate.angle.add(Rad(0.01));
 
-        program.render(vp_matrix);
+        program.render();
 
         gloo_timers::future::TimeoutFuture::new(1000 / 60).await;
     }
@@ -61,25 +67,6 @@ fn clear() {
         ctx.clear_depth(1.0);
         ctx.clear(Context::COLOR_BUFFER_BIT | Context::DEPTH_BUFFER_BIT);
     });
-}
-
-fn vp_matrix() -> Matrix4<f32> {
-    // ビュー座標変換行列
-    let v_mat = Matrix4::look_at(
-        Point3::new(0.0, 0.0, 20.0), // カメラの位置
-        Point3::new(0.0, 0.0, 0.0),  // 視点の中央
-        vec3(0.0, 1.0, 0.0),         // 上方向のベクトル
-    );
-
-    // プロジェクション座標変換行列
-    let p_mat = cgmath::perspective(
-        Deg(45.0), // 画角
-        1.0,       // アスペクト比
-        0.1,       // どれくらい近くまでカメラに写すか
-        100.0,     // どれくらい遠くまでカメラに写すか
-    );
-
-    p_mat * v_mat
 }
 
 /*

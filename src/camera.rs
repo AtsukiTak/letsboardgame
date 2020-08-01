@@ -1,6 +1,4 @@
 use cgmath::{prelude::*, Deg, Matrix4, Point3, Rad, Vector3};
-use derive_more::Deref;
-use std::rc::Rc;
 
 /// カメラを表すモデル
 ///
@@ -8,12 +6,8 @@ use std::rc::Rc;
 /// let camera = Camera::new();
 /// camera.pos.set(0.0, 0.0, 20.0);
 /// ```
-#[derive(Debug, Clone, Deref)]
-#[deref(forward)]
-pub struct Camera(Rc<CameraCell>);
-
-#[derive(Debug)]
-pub struct CameraCell {
+#[derive(Debug, Clone, Copy)]
+pub struct Camera {
     /// カメラの位置
     /// Default : (0.0, 0.0, 0.0),
     pub pos: Vector3<f32>,
@@ -41,7 +35,7 @@ pub struct CameraCell {
 
 impl Camera {
     pub fn new() -> Self {
-        let inner = CameraCell {
+        Camera {
             pos: Vector3::zero(),
             look_at: Vector3::zero(),
             up: Vector3::new(0.0, 0.0, 1.0),
@@ -49,8 +43,7 @@ impl Camera {
             aspect: 1.0,
             near: 0.1,
             far: 100.0,
-        };
-        Camera(Rc::new(inner))
+        }
     }
 
     /// ( プロジェクション座標変換行列 ) * ( ビュー座標変換行列 ) の計算結果を返す
