@@ -21,7 +21,7 @@ impl Scene {
         self.objects.push(object.clone());
     }
 
-    pub fn remove(&mut self, object: &Object) {
+    pub fn remove(&mut self, _object: &Object) {
         unimplemented!();
     }
 }

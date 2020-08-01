@@ -39,7 +39,7 @@ impl StdProgram {
 
         for object in self.scene.objects() {
             // 各uniform変数の設定
-            let m_matrix = object.transform().matrix();
+            let m_matrix = object.transform.matrix();
             let mvp_matrix = vp_matrix * m_matrix;
             let inv_matrix = m_matrix.invert().unwrap();
             self.program.params.mvp_matrix.set_value(mvp_matrix);

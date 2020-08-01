@@ -5,6 +5,7 @@ use three_wasm::{
         context::{self, Context},
     },
     meshes,
+    object::Object,
     programs::standard::StdProgram,
 };
 use wasm_bindgen::{prelude::*, JsCast as _};
@@ -15,6 +16,8 @@ pub async fn start() -> Result<(), JsValue> {
 
     let mesh = meshes::torus(1.0, 64, 2.0, 64);
     // let mesh = meshes::sphere(32, 32, 2.0);
+    let object = Object::new(mesh);
+    object.update_transform(|trans| trans.rotate_axis = vec3(0.0, 1.0, 1.0));
 
     let mut program = StdProgram::new()?;
 
@@ -23,20 +26,22 @@ pub async fn start() -> Result<(), JsValue> {
     params.ambient_color.set_value(vec4(0.1, 0.1, 0.1, 0.1));
     params.eye_direction.set_value(vec3(0.0, 0.0, 20.0));
 
-    program.scene.add(mesh);
-    program.scene.background = Color::rgb(0, 100, 150);
+    program.scene.add(&object);
 
     let vp_matrix = vp_matrix();
     let mut frame = 1;
     loop {
         clear();
 
+        let angle = Deg((frame % 360) as f32);
+        let axis = vec3(0.0, 1.0, 1.0).normalize();
+
         let m_matrix = m_matrix(frame);
         let params = program.params_mut();
         params.mvp_matrix.set_value(vp_matrix * m_matrix);
         params.inv_matrix.set_value(m_matrix.invert().unwrap());
 
-        program.render();
+        program.render(vp_matrix);
 
         frame = frame + 1;
 
@@ -119,6 +124,7 @@ pub async fn start_test() -> Result<(), JsValue> {
 
     let mesh = meshes::torus(1.0, 32, 2.0, 32);
     let index_len = mesh.indexes.as_ref().len();
+    let object = Object::new(mesh);
 
     let mut program = StdProgram::new()?;
 
@@ -127,7 +133,7 @@ pub async fn start_test() -> Result<(), JsValue> {
     params.ambient_color.set_value(vec4(0.1, 0.1, 0.1, 0.1));
     params.eye_direction.set_value(vec3(0.0, 0.0, 20.0));
 
-    program.scene.add(mesh);
+    program.scene.add(&object);
 
     context::with(|ctx| {
         original::rendering_loop(
