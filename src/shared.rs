@@ -2,14 +2,20 @@ use cgmath::{vec3, Vector3};
 use std::{cell::Cell, ops::AddAssign};
 
 #[derive(Debug)]
-pub struct SharedVector3 {
-    pub x: Shared<f32>,
-    pub y: Shared<f32>,
-    pub z: Shared<f32>,
+pub struct SharedVector3<T>
+where
+    T: Copy,
+{
+    pub x: Shared<T>,
+    pub y: Shared<T>,
+    pub z: Shared<T>,
 }
 
-impl SharedVector3 {
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+impl<T> SharedVector3<T>
+where
+    T: Copy,
+{
+    pub fn new(x: T, y: T, z: T) -> Self {
         SharedVector3 {
             x: Shared::new(x),
             y: Shared::new(y),
@@ -17,18 +23,20 @@ impl SharedVector3 {
         }
     }
 
-    pub fn zero() -> Self {
-        SharedVector3::new(0.0, 0.0, 0.0)
-    }
-
-    pub fn get(&self) -> Vector3<f32> {
+    pub fn get(&self) -> Vector3<T> {
         vec3(self.x.get(), self.y.get(), self.z.get())
     }
 
-    pub fn set(&self, x: f32, y: f32, z: f32) {
+    pub fn set(&self, x: T, y: T, z: T) {
         self.x.set(x);
         self.y.set(y);
         self.z.set(z);
+    }
+}
+
+impl SharedVector3<f32> {
+    pub fn zero() -> Self {
+        SharedVector3::new(0.0, 0.0, 0.0)
     }
 }
 

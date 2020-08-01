@@ -32,11 +32,11 @@ impl Object {
 #[derive(Debug)]
 pub struct Transform {
     // 移動方向
-    pub pos: SharedVector3,
+    pub pos: SharedVector3<f32>,
     // 回転軸
     pub rotate: TransformRotate,
     // x, y, z 方向への拡大率
-    pub scale: SharedVector3,
+    pub scale: SharedVector3<f32>,
 }
 
 impl Transform {
@@ -65,7 +65,7 @@ impl Transform {
 
 #[derive(Debug)]
 pub struct TransformRotate {
-    pub axis: SharedVector3,
+    pub axis: SharedVector3<f32>,
     pub angle: Shared<Rad<f32>>,
 }
 
