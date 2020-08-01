@@ -1,20 +1,29 @@
 use crate::meshes::Mesh;
 use cgmath::{prelude::*, Matrix4, Rad, Vector3};
+use std::{cell::Cell, rc::Rc};
 
 /// world 上のオブジェクト
 /// `Mesh` を拡大縮小、回転、移動させたもの
 #[derive(Debug, Clone, PartialEq)]
 pub struct Object {
-    pub mesh: Mesh,
-    pub transform: Transform,
+    pub(crate) mesh: Mesh,
+    pub(crate) transform: Rc<Cell<Transform>>,
 }
 
 impl Object {
     pub fn new(mesh: Mesh) -> Self {
         Object {
             mesh,
-            transform: Transform::new(),
+            transform: Rc::new(Cell::new(Transform::new())),
         }
+    }
+
+    pub fn transform(&self) -> Transform {
+        self.transform.get()
+    }
+
+    pub fn set_transform(&self, transform: Transform) {
+        self.transform.set(transform);
     }
 }
 
