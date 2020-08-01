@@ -1,6 +1,6 @@
 use crate::{
+    cell::{Cell, Vector3Cell},
     meshes::Mesh,
-    shared::{Shared, SharedVector3},
 };
 use cgmath::{prelude::*, Matrix4, Rad};
 use std::rc::Rc;
@@ -32,19 +32,19 @@ impl Object {
 #[derive(Debug)]
 pub struct Transform {
     // 移動方向
-    pub pos: SharedVector3<f32>,
+    pub pos: Vector3Cell<f32>,
     // 回転軸
     pub rotate: TransformRotate,
     // x, y, z 方向への拡大率
-    pub scale: SharedVector3<f32>,
+    pub scale: Vector3Cell<f32>,
 }
 
 impl Transform {
     pub fn new() -> Self {
         Transform {
-            pos: SharedVector3::zero(),
+            pos: Vector3Cell::zero(),
             rotate: TransformRotate::new(),
-            scale: SharedVector3::new(1.0, 1.0, 1.0),
+            scale: Vector3Cell::new(1.0, 1.0, 1.0),
         }
     }
 
@@ -65,15 +65,15 @@ impl Transform {
 
 #[derive(Debug)]
 pub struct TransformRotate {
-    pub axis: SharedVector3<f32>,
-    pub angle: Shared<Rad<f32>>,
+    pub axis: Vector3Cell<f32>,
+    pub angle: Cell<Rad<f32>>,
 }
 
 impl TransformRotate {
     fn new() -> Self {
         TransformRotate {
-            axis: SharedVector3::new(1.0, 0.0, 0.0),
-            angle: Shared::new(Rad(0.0)),
+            axis: Vector3Cell::new(1.0, 0.0, 0.0),
+            angle: Cell::new(Rad(0.0)),
         }
     }
 }

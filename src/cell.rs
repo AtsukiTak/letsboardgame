@@ -1,25 +1,25 @@
 use cgmath::{vec3, Vector3};
-use std::{cell::Cell, ops::AddAssign};
+use std::{cell::Cell as StdCell, ops::AddAssign};
 
 #[derive(Debug)]
-pub struct SharedVector3<T>
+pub struct Vector3Cell<T>
 where
     T: Copy,
 {
-    pub x: Shared<T>,
-    pub y: Shared<T>,
-    pub z: Shared<T>,
+    pub x: Cell<T>,
+    pub y: Cell<T>,
+    pub z: Cell<T>,
 }
 
-impl<T> SharedVector3<T>
+impl<T> Vector3Cell<T>
 where
     T: Copy,
 {
     pub fn new(x: T, y: T, z: T) -> Self {
-        SharedVector3 {
-            x: Shared::new(x),
-            y: Shared::new(y),
-            z: Shared::new(z),
+        Vector3Cell {
+            x: Cell::new(x),
+            y: Cell::new(y),
+            z: Cell::new(z),
         }
     }
 
@@ -34,21 +34,21 @@ where
     }
 }
 
-impl SharedVector3<f32> {
+impl Vector3Cell<f32> {
     pub fn zero() -> Self {
-        SharedVector3::new(0.0, 0.0, 0.0)
+        Vector3Cell::new(0.0, 0.0, 0.0)
     }
 }
 
 #[derive(Debug)]
-pub struct Shared<T: Copy>(Cell<T>);
+pub struct Cell<T: Copy>(StdCell<T>);
 
-impl<T> Shared<T>
+impl<T> Cell<T>
 where
     T: Copy,
 {
     pub fn new(t: T) -> Self {
-        Shared(Cell::new(t))
+        Cell(StdCell::new(t))
     }
 
     pub fn get(&self) -> T {
@@ -63,7 +63,7 @@ where
     /// mutable reference.
     ///
     /// ```rust
-    /// let v = Shared::new(1);
+    /// let v = Cell::new(1);
     /// v.add(1);
     /// assert_eq!(v.get(), 2);
     /// ```
