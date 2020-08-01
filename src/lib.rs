@@ -4,3 +4,4 @@ pub mod object;
 pub mod original;
 pub mod programs;
 pub mod scene;
+pub mod shared;
