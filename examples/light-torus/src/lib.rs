@@ -1,9 +1,6 @@
-use cgmath::{prelude::*, vec3, vec4, Deg, Matrix4, Point3};
+use cgmath::{vec3, vec4, Deg, Matrix4, Point3, Rad};
 use three_wasm::{
-    core::{
-        color::Color,
-        context::{self, Context},
-    },
+    core::context::{self, Context},
     meshes,
     object::Object,
     programs::standard::StdProgram,
@@ -17,7 +14,7 @@ pub async fn start() -> Result<(), JsValue> {
     let mesh = meshes::torus(1.0, 64, 2.0, 64);
     // let mesh = meshes::sphere(32, 32, 2.0);
     let object = Object::new(mesh);
-    object.update_transform(|trans| trans.rotate_axis = vec3(0.0, 1.0, 1.0));
+    object.transform.rotate.axis.set(1.0, 0.0, 0.0);
 
     let mut program = StdProgram::new()?;
 
@@ -29,21 +26,12 @@ pub async fn start() -> Result<(), JsValue> {
     program.scene.add(&object);
 
     let vp_matrix = vp_matrix();
-    let mut frame = 1;
     loop {
         clear();
 
-        let angle = Deg((frame % 360) as f32);
-        let axis = vec3(0.0, 1.0, 1.0).normalize();
-
-        let m_matrix = m_matrix(frame);
-        let params = program.params_mut();
-        params.mvp_matrix.set_value(vp_matrix * m_matrix);
-        params.inv_matrix.set_value(m_matrix.invert().unwrap());
+        object.transform.rotate.angle.add_assign(Rad(0.01));
 
         program.render(vp_matrix);
-
-        frame = frame + 1;
 
         gloo_timers::future::TimeoutFuture::new(1000 / 60).await;
     }
@@ -92,12 +80,6 @@ fn vp_matrix() -> Matrix4<f32> {
     );
 
     p_mat * v_mat
-}
-
-fn m_matrix(frame: usize) -> Matrix4<f32> {
-    let angle = Deg((frame % 360) as f32);
-    let axis = vec3(0.0, 1.0, 1.0).normalize();
-    Matrix4::from_axis_angle(axis, angle)
 }
 
 /*

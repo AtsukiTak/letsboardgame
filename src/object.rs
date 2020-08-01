@@ -84,6 +84,12 @@ impl AtomicVector3 {
     pub fn get(&self) -> Vector3<f32> {
         vec3(self.x.get(), self.y.get(), self.z.get())
     }
+
+    pub fn set(&self, x: f32, y: f32, z: f32) {
+        self.x.set(x);
+        self.y.set(y);
+        self.z.set(z);
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -104,13 +110,11 @@ where
     pub fn set(&self, t: T) {
         self.0.set(t);
     }
-}
 
-impl<T, U> AddAssign<U> for &Atomic<T>
-where
-    T: AddAssign<U> + Copy,
-{
-    fn add_assign(&mut self, other: U) {
+    pub fn add_assign<U>(&self, other: U)
+    where
+        T: AddAssign<U>,
+    {
         let mut t = self.get();
         t += other;
         self.set(t);
