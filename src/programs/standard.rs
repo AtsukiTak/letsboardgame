@@ -38,12 +38,20 @@ impl StdProgram {
     }
 
     pub fn render(&mut self) {
+        // 背景色の設定
         context::clear_color(&self.scene.background);
+
+        // ambient_color の設定
         self.program
             .params
             .ambient_color
             .set_value(self.scene.ambient_color.to_f32_vec4());
 
+        // eye_directionの設定
+        let eye_direction = self.camera.look_at - self.camera.pos;
+        self.program.params.eye_direction.set_value(eye_direction);
+
+        // カメラ周りの設定
         let vp_matrix = self.camera.matrix();
 
         for object in self.scene.objects() {
