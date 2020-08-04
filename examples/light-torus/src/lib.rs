@@ -11,10 +11,14 @@ use wasm_bindgen::{prelude::*, JsCast as _};
 pub async fn start() -> Result<(), JsValue> {
     initialize()?;
 
-    let mesh = meshes::torus(1.0, 64, 2.0, 64);
-    // let mesh = meshes::sphere(32, 32, 2.0);
-    let object = Object::new(mesh);
-    object.transform.rotate.axis.set(0.0, 1.0, 1.0);
+    let torus_mesh = meshes::torus(1.0, 64, 2.0, 64);
+    let torus = Object::new(torus_mesh);
+    torus.transform.pos.x.set(-5.0);
+    torus.transform.rotate.axis.set(0.0, 1.0, 1.0);
+
+    let sphere_mesh = meshes::sphere(32, 32, 2.0);
+    let sphere = Object::new(sphere_mesh);
+    sphere.transform.pos.x.set(5.0);
 
     let mut program = StdProgram::new()?;
 
@@ -30,12 +34,13 @@ pub async fn start() -> Result<(), JsValue> {
     params.ambient_color.set_value(vec4(0.1, 0.1, 0.1, 0.1));
     params.eye_direction.set_value(vec3(0.0, 0.0, 20.0));
 
-    program.scene.add(&object);
+    program.scene.add(&torus);
+    program.scene.add(&sphere);
 
     loop {
         clear();
 
-        object.transform.rotate.angle.add(Rad(0.01));
+        torus.transform.rotate.angle.add(Rad(0.01));
 
         program.render();
 
