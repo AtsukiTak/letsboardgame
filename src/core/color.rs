@@ -19,4 +19,14 @@ impl Color {
     pub fn black() -> Self {
         Color::rgb(0, 0, 0)
     }
+
+    /// 0 ~ 1 の範囲に丸めた値を返す
+    pub fn to_f32(self) -> (f32, f32, f32, f32) {
+        (
+            self.r as f32 / 255.0,
+            self.g as f32 / 255.0,
+            self.b as f32 / 255.0,
+            self.a,
+        )
+    }
 }

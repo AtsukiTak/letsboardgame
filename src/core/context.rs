@@ -28,7 +28,8 @@ where
 }
 
 pub fn clear_color(color: &Color) {
-    with(|ctx| ctx.clear_color(color.r as f32, color.g as f32, color.b as f32, color.a))
+    let (r, g, b, a) = color.to_f32();
+    with(|ctx| ctx.clear_color(r, g, b, a))
 }
 
 pub fn enable(cap: u32) {
