@@ -1,3 +1,5 @@
+use cgmath::{vec4, Vector4};
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
     pub r: u8,
@@ -28,5 +30,10 @@ impl Color {
             self.b as f32 / 255.0,
             self.a,
         )
+    }
+
+    pub fn to_f32_vec4(self) -> Vector4<f32> {
+        let (r, g, b, a) = self.to_f32();
+        vec4(r, g, b, a)
     }
 }

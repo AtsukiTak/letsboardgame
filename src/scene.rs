@@ -3,6 +3,7 @@ use crate::{core::color::Color, object::Object};
 pub struct Scene {
     objects: Vec<Object>,
     pub background: Color,
+    pub ambient_color: Color,
 }
 
 impl Scene {
@@ -10,6 +11,7 @@ impl Scene {
         Scene {
             objects: Vec::new(),
             background: Color::black(),
+            ambient_color: Color::rgba(25, 25, 25, 0.1),
         }
     }
 

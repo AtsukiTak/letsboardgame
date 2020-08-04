@@ -39,6 +39,10 @@ impl StdProgram {
 
     pub fn render(&mut self) {
         context::clear_color(&self.scene.background);
+        self.program
+            .params
+            .ambient_color
+            .set_value(self.scene.ambient_color.to_f32_vec4());
 
         let vp_matrix = self.camera.matrix();
 

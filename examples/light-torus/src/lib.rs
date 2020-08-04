@@ -31,7 +31,6 @@ pub async fn start() -> Result<(), JsValue> {
     // TODO これも抽象化する
     let params = program.params_mut();
     params.light_direction.set_value(vec3(-0.5, 0.5, 0.5));
-    params.ambient_color.set_value(vec4(0.1, 0.1, 0.1, 0.1));
     params.eye_direction.set_value(vec3(0.0, 0.0, 20.0));
 
     program.scene.add(&torus);
