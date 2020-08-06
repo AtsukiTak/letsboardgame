@@ -9,7 +9,7 @@ use cgmath::prelude::*;
 use wasm_bindgen::JsValue;
 
 pub struct Renderer {
-    program: StdProgram,
+    pub program: StdProgram,
     pub scene: Scene,
     pub camera: Camera,
 }
