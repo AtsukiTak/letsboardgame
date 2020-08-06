@@ -1,9 +1,6 @@
 use crate::{
     camera::Camera,
-    core::{
-        buffers::{IBO, VBO},
-        context::{self, Context},
-    },
+    core::context::{self, Context},
     object::Object,
     programs::StdProgram,
     scene::Scene,
@@ -62,25 +59,24 @@ impl Renderer {
         let mesh = &object.mesh;
 
         // "position" attributeの設定
-        let vert_vbo = VBO::with_data(&mesh.positions);
-        self.program.params().position.attach_vbo(&vert_vbo);
+        self.program
+            .params()
+            .position
+            .attach_vbo(&mesh.positions_vbo);
 
         // "normal" attributeの設定
-        let normal_vbo = VBO::with_data(&mesh.normals);
-        self.program.params().normal.attach_vbo(&normal_vbo);
+        self.program.params().normal.attach_vbo(&mesh.normals_vbo);
 
         // "color" attributeの設定
-        let colors_vbo = VBO::with_data(&mesh.colors);
-        self.program.params().color.attach_vbo(&colors_vbo);
+        self.program.params().color.attach_vbo(&mesh.colors_vbo);
 
         // Index Bufferの設定
-        let ibo = IBO::with_data(&mesh.indexes);
-        ibo.bind();
+        mesh.indexes_ibo.bind();
 
         context::with(|ctx| {
             ctx.draw_elements_with_i32(
                 Context::TRIANGLES,
-                mesh.indexes.as_ref().len() as i32,
+                mesh.index_len,
                 Context::UNSIGNED_SHORT,
                 0,
             );

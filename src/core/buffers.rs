@@ -1,6 +1,7 @@
 use super::context::{self, Context};
 use std::marker::PhantomData;
 
+#[derive(Debug, PartialEq)]
 pub struct VBO<T> {
     buf: web_sys::WebGlBuffer,
     _type: PhantomData<T>,
@@ -60,6 +61,7 @@ where
 
 /// インデックスバッファーオブジェクト
 /// 型パラメータ `T` は `Vec3<i16>` などを想定
+#[derive(Debug, PartialEq)]
 pub struct IBO<T> {
     buf: web_sys::WebGlBuffer,
     _type: PhantomData<T>,

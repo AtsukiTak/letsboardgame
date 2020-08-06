@@ -42,10 +42,5 @@ pub fn sphere(row: usize, column: usize, radius: f32) -> Mesh {
         }
     }
 
-    Mesh {
-        positions: pos,
-        colors: col,
-        normals: nor,
-        indexes: idx,
-    }
+    Mesh::new(pos, col, nor, idx)
 }

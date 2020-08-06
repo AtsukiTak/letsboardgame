@@ -65,12 +65,7 @@ pub fn torus(tube_radius: f32, tube_steps: u32, core_radius: f32, core_steps: u3
         }
     }
 
-    Mesh {
-        positions,
-        colors,
-        indexes,
-        normals,
-    }
+    Mesh::new(positions, colors, normals, indexes)
 }
 
 #[cfg(test)]
