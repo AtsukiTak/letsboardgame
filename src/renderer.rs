@@ -1,6 +1,7 @@
 use crate::{
     camera::Camera,
     core::context::{self, Context},
+    light::Light,
     object::Object,
     programs::StdProgram,
     scene::Scene,
@@ -9,7 +10,7 @@ use cgmath::prelude::*;
 use wasm_bindgen::JsValue;
 
 pub struct Renderer {
-    pub program: StdProgram,
+    program: StdProgram,
     pub scene: Scene,
     pub camera: Camera,
 }
@@ -39,6 +40,17 @@ impl Renderer {
             .params_mut()
             .eye_direction
             .set_value(eye_direction);
+
+        // lightの設定
+        match self.scene.light {
+            Some(Light::Directional(ref light)) => {
+                self.program
+                    .params_mut()
+                    .light_direction
+                    .set_value(light.dir);
+            }
+            None => {}
+        }
 
         // カメラ周りの設定
         let vp_matrix = self.camera.matrix();

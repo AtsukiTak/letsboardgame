@@ -1,9 +1,10 @@
-use crate::{core::color::Color, object::Object};
+use crate::{core::color::Color, light::Light, object::Object};
 
 pub struct Scene {
     objects: Vec<Object>,
     pub background: Color,
     pub ambient_color: Color,
+    pub light: Option<Light>,
 }
 
 impl Scene {
@@ -12,6 +13,7 @@ impl Scene {
             objects: Vec::new(),
             background: Color::black(),
             ambient_color: Color::rgba(25, 25, 25, 0.1),
+            light: None,
         }
     }
 

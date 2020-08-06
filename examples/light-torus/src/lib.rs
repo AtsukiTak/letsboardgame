@@ -1,6 +1,7 @@
 use cgmath::{vec3, Rad};
 use three_wasm::{
     core::context::{self, Context},
+    light::Light,
     meshes,
     object::Object,
     renderer::Renderer,
@@ -27,10 +28,8 @@ pub async fn start() -> Result<(), JsValue> {
     // 0.0, 0.0, 1.0 にすると何も映らなくなる...
     renderer.camera.up = vec3(0.0, 1.0, 0.0);
 
-    // その他の設定
-    // TODO これも抽象化する
-    let params = renderer.program.params_mut();
-    params.light_direction.set_value(vec3(0.5, -0.5, -0.5));
+    // ライトの設定
+    renderer.scene.light = Some(Light::directional(0.5, -0.5, -0.5));
 
     renderer.scene.add(&torus);
     renderer.scene.add(&sphere);

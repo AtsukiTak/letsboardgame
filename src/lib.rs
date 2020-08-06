@@ -1,6 +1,7 @@
 pub mod camera;
 pub mod cell;
 pub mod core;
+pub mod light;
 pub mod meshes;
 pub mod object;
 pub mod original;
