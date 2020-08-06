@@ -48,7 +48,15 @@ impl Renderer {
                 params.light_type.set_value(1);
                 params.light_val.set_value(light.dir);
             }
-            None => {}
+            Some(Light::Point(ref light)) => {
+                let params = self.program.params_mut();
+                params.light_type.set_value(2);
+                params.light_val.set_value(light.pos);
+            }
+            None => {
+                let params = self.program.params_mut();
+                params.light_type.set_value(0);
+            }
         }
 
         // カメラ周りの設定

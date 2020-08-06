@@ -29,7 +29,7 @@ pub async fn start() -> Result<(), JsValue> {
     renderer.camera.up = vec3(0.0, 1.0, 0.0);
 
     // ライトの設定
-    renderer.scene.light = Some(Light::directional(0.5, -0.5, -0.5));
+    renderer.scene.light = Some(Light::point(0.0, 0.0, 10.0));
 
     renderer.scene.add(&torus);
     renderer.scene.add(&sphere);
