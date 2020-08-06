@@ -35,10 +35,12 @@ pub struct Params {
     pub normal: Attribute<Vec3<f32>>,
     pub color: Attribute<Vec4<f32>>,
     pub mvp_matrix: Uniform<Mat4<f32>>,
+    pub m_matrix: Uniform<Mat4<f32>>,
 
     // for fragment shader
     pub inv_matrix: Uniform<Mat4<f32>>,
-    pub light_direction: Uniform<Vector3<f32>>,
+    pub light_type: Uniform<i32>,
+    pub light_val: Uniform<Vector3<f32>>,
     pub eye_direction: Uniform<Vector3<f32>>,
     pub ambient_color: Uniform<Vector4<f32>>,
 }
@@ -46,12 +48,17 @@ pub struct Params {
 impl ParamsBase for Params {
     fn from_visitor<'a>(visitor: ParamsVisitor<'a>) -> Result<Self, JsValue> {
         Ok(Params {
+            // for vertex shader
             position: visitor.visit_attr("position")?,
             normal: visitor.visit_attr("normal")?,
             color: visitor.visit_attr("color")?,
             mvp_matrix: visitor.visit_uniform("mvpMatrix")?,
+            m_matrix: visitor.visit_uniform("mMatrix")?,
+
+            // for fragment shader
             inv_matrix: visitor.visit_uniform("invMatrix")?,
-            light_direction: visitor.visit_uniform("lightDirection")?,
+            light_type: visitor.visit_uniform("lightType")?,
+            light_val: visitor.visit_uniform("lightVal")?,
             eye_direction: visitor.visit_uniform("eyeDirection")?,
             ambient_color: visitor.visit_uniform("ambientColor")?,
         })

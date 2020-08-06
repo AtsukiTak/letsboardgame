@@ -259,3 +259,21 @@ impl Uniform<Vector4<f32>> {
         })
     }
 }
+
+impl UniformBase for Uniform<i32> {
+    fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
+        Uniform {
+            name,
+            location,
+            value: 0,
+        }
+    }
+}
+
+impl Uniform<i32> {
+    pub fn set_value(&mut self, value: i32) {
+        self.value = value;
+
+        context::with(|ctx| ctx.uniform1i(Some(&self.location), self.value))
+    }
+}

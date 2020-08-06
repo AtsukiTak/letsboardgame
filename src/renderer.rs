@@ -44,10 +44,9 @@ impl Renderer {
         // lightの設定
         match self.scene.light {
             Some(Light::Directional(ref light)) => {
-                self.program
-                    .params_mut()
-                    .light_direction
-                    .set_value(light.dir);
+                let params = self.program.params_mut();
+                params.light_type.set_value(1);
+                params.light_val.set_value(light.dir);
             }
             None => {}
         }
@@ -61,6 +60,7 @@ impl Renderer {
             let mvp_matrix = vp_matrix * m_matrix;
             let inv_matrix = m_matrix.invert().unwrap();
             self.program.params_mut().mvp_matrix.set_value(mvp_matrix);
+            self.program.params_mut().m_matrix.set_value(m_matrix);
             self.program.params_mut().inv_matrix.set_value(inv_matrix);
 
             self.render_object(object);
