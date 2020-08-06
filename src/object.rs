@@ -7,17 +7,41 @@ use std::rc::Rc;
 
 /// world 上のオブジェクト
 /// `Mesh` を拡大縮小、回転、移動させたもの
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Object {
     pub mesh: Mesh,
     pub transform: Rc<Transform>,
 }
 
 impl Object {
+    /// 新しいObjectを生成する。
     pub fn new(mesh: Mesh) -> Self {
         Object {
             mesh,
             transform: Rc::new(Transform::new()),
+        }
+    }
+
+    /// 同じObjectを指すObjectを生成する。
+    /// 通常のCloneと違い、生成されたObjectは実態としては
+    /// 生成元と同じなため、一方に変更を加えると
+    /// もう一方も変更される。
+    pub fn shared_clone(&self) -> Object {
+        Object {
+            mesh: self.mesh.clone(),
+            transform: self.transform.clone(),
+        }
+    }
+}
+
+/// 新しいObjectを生成する。
+/// 生成されたObjectは生成元と完全に異なるObjectとなるため、
+/// 一方に変更を加えても、もう一方に影響を与えない。
+impl Clone for Object {
+    fn clone(&self) -> Object {
+        Object {
+            mesh: self.mesh.clone(),
+            transform: Rc::new(Transform::clone(&self.transform)),
         }
     }
 }
@@ -29,7 +53,7 @@ impl Object {
 /// transform.rotate.axis.set(0.0, 1.0, 1.0);
 /// transform.rotate.angle.add(Rad(1.0));
 /// transform.pos.x.add(1);
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Transform {
     // 移動方向
     pub pos: Vector3Cell<f32>,
@@ -63,7 +87,7 @@ impl Transform {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TransformRotate {
     pub axis: Vector3Cell<f32>,
     pub angle: Cell<Rad<f32>>,

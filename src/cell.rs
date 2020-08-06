@@ -1,7 +1,7 @@
 use cgmath::{vec3, Vector3};
 use std::{cell::Cell as StdCell, ops::AddAssign};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Vector3Cell<T>
 where
     T: Copy,
@@ -40,7 +40,7 @@ impl Vector3Cell<f32> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Cell<T: Copy>(StdCell<T>);
 
 impl<T> Cell<T>

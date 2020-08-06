@@ -20,7 +20,7 @@ impl Scene {
     }
 
     pub fn add(&mut self, object: &Object) {
-        self.objects.push(object.clone());
+        self.objects.push(object.shared_clone());
     }
 
     pub fn remove(&mut self, _object: &Object) {
