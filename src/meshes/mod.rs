@@ -1,6 +1,8 @@
+mod rect;
 mod sphere;
 mod torus;
 
+pub use rect::rect;
 pub use sphere::sphere;
 pub use torus::torus;
 
