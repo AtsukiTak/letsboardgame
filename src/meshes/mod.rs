@@ -8,7 +8,8 @@ pub use torus::torus;
 
 use crate::core::{
     buffers::{IBO, VBO},
-    types::{Vec3, Vec4},
+    texture::Texture,
+    types::{Vec2, Vec3, Vec4},
 };
 use std::rc::Rc;
 
@@ -19,6 +20,13 @@ pub struct Mesh {
     pub normals_vbo: Rc<VBO<Vec3<f32>>>,
     pub indexes_ibo: Rc<IBO<Vec3<i16>>>,
     pub index_len: i32,
+    pub texture: Option<MeshTexture>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct MeshTexture {
+    pub coord: Rc<VBO<Vec2<f32>>>,
+    pub data: Rc<Texture>,
 }
 
 impl Mesh {
@@ -34,6 +42,7 @@ impl Mesh {
             normals_vbo: Rc::new(VBO::with_data(&normals)),
             indexes_ibo: Rc::new(IBO::with_data(&indexes)),
             index_len: indexes.as_ref().len() as i32,
+            texture: None,
         }
     }
 }

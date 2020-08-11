@@ -2,6 +2,7 @@ use super::context::{self, Context};
 use image::RgbaImage;
 use wasm_bindgen::JsValue;
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Texture {
     gl_texture: web_sys::WebGlTexture,
 }
