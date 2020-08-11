@@ -9,23 +9,26 @@ varying vec3 vPosition;     // World座標系での位置
 varying vec3 vNormal;       // Local座標系での法線ベクトル
 varying vec4 vColor;
 
-void main(void) {
-  if (lightType == 0) {
-    // 光源なし
-    gl_FragColor    = vColor;
-  } else {
-    vec3  lightDir = lightVal; // 平行光源の場合
-    if (lightType == 2) {
-      // 点光源の場合
-      lightDir = vPosition - lightVal;
-    }
+vec3 invLight() {
+  // lightType == 0 のとき、このパスを通らないようにする
+  vec3 lightDir = (lightType == 1) ? lightVal : vPosition - lightVal;
+    return normalize(invMMatrix * vec4(-lightDir, 0.0)).xyz;
+}
 
-    vec3  invLight  = normalize(invMMatrix * vec4(-lightDir, 0.0)).xyz;
+vec4 diffuse() {
+    float diffuseVal = clamp(dot(vNormal, invLight()), 0.0, 1.0);
+    return vec4(vec3(diffuseVal), 1.0);
+}
+
+vec4 specular() {
     vec3  invEye    = normalize(invMMatrix * vec4(-eyeDirection, 0.0)).xyz;
-    vec3  halfLE    = normalize(invLight + invEye);
-    float diffuse   = clamp(dot(vNormal, invLight), 0.0, 1.0);
-    float specular  = pow(clamp(dot(vNormal, halfLE), 0.0, 1.0), 50.0);
-    vec4  destColor = vColor * vec4(vec3(diffuse), 1.0) + vec4(vec3(specular), 1.0) + ambientColor;
-    gl_FragColor    = destColor;
-  }
+    vec3  halfLE    = normalize(invLight() + invEye);
+    float specularVal = pow(clamp(dot(vNormal, halfLE), 0.0, 1.0), 50.0);
+    return vec4(vec3(specularVal), 1.0);
+}
+
+void main(void) {
+  gl_FragColor = (lightType == 0)
+    ? vColor + ambientColor
+    : vColor * diffuse() + specular() + ambientColor;
 }
