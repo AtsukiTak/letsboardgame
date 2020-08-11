@@ -15,19 +15,19 @@ varying   vec4 vColor; // フラグメントの色
 vec3 invLight() {
   // World座標系における頂点座標
   vec3 worldPos = (mMatrix * vec4(position, 1.0)).xyz;
-  vec3 lightDir = (lightType == 1) ? lightVal : position - lightVal;
+  vec3 lightDir = (lightType == 1) ? lightVal : worldPos - lightVal;
   return normalize(invMMatrix * vec4(-lightDir, 0.0)).xyz;
 }
 
 vec4 diffuse() {
   float diffuseVal = clamp(dot(normal, invLight()), 0.0, 1.0);
-  return vec4(vec3(diffuseVal));
+  return vec4(vec3(diffuseVal), 1.0);
 }
 
 vec4 specular() {
   vec3 invEye = normalize(invMMatrix * vec4(-eyeDirection, 0.0)).xyz;
   vec3 halfLE = normalize(invLight() + invEye);
-  float specularVal = pow(clamp(dot(normal, halfLE), .0.0, 1.0), 50);
+  float specularVal = pow(clamp(dot(normal, halfLE), 0.0, 1.0), 50.0);
   return vec4(vec3(specularVal), 1.0);
 }
 
@@ -36,6 +36,6 @@ void main(void) {
   gl_Position = mvpMatrix * vec4(position, 1.0);
 
   vColor = (lightType == 0)
-    ? vColor + ambientColor
-    : vColor * diffuse() + specular() + ambientColor;
+    ? color + ambientColor
+    : color * diffuse() + specular() + ambientColor;
 }

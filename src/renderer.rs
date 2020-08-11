@@ -18,7 +18,7 @@ pub struct Renderer {
 impl Renderer {
     pub fn new() -> Result<Self, JsValue> {
         Ok(Renderer {
-            program: BasicProgram::phong()?,
+            program: BasicProgram::gouraud()?,
             scene: Scene::new(),
             camera: Camera::new(),
         })
