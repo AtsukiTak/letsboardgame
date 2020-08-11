@@ -20,11 +20,11 @@ impl PhongProgram {
         Ok(PhongProgram { program })
     }
 
-    pub fn params(&self) -> &Params {
+    pub(crate) fn params(&self) -> &Params {
         &self.program.params
     }
 
-    pub fn params_mut(&mut self) -> &mut Params {
+    pub(crate) fn params_mut(&mut self) -> &mut Params {
         &mut self.program.params
     }
 }
@@ -38,7 +38,7 @@ pub struct Params {
     pub m_matrix: Uniform<Mat4<f32>>,
 
     // for fragment shader
-    pub inv_matrix: Uniform<Mat4<f32>>,
+    pub inv_m_matrix: Uniform<Mat4<f32>>,
     pub light_type: Uniform<i32>,
     pub light_val: Uniform<Vector3<f32>>,
     pub eye_direction: Uniform<Vector3<f32>>,
@@ -56,7 +56,7 @@ impl ParamsBase for Params {
             m_matrix: visitor.visit_uniform("mMatrix")?,
 
             // for fragment shader
-            inv_matrix: visitor.visit_uniform("invMatrix")?,
+            inv_m_matrix: visitor.visit_uniform("invMMatrix")?,
             light_type: visitor.visit_uniform("lightType")?,
             light_val: visitor.visit_uniform("lightVal")?,
             eye_direction: visitor.visit_uniform("eyeDirection")?,

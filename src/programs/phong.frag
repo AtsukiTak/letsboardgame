@@ -1,6 +1,6 @@
 precision mediump float;
 
-uniform mat4 invMatrix;     // モデル座標変換行列の逆行列
+uniform mat4 invMMatrix; // モデル座標変換行列の逆行列
 uniform int  lightType; // 0: 光源なし, 1: 平行光源, 2: 点光源
 uniform vec3 lightVal; // 平行光源のときdirection, 点光源のときposition
 uniform vec3 eyeDirection;
@@ -20,8 +20,8 @@ void main(void) {
       lightDir = vPosition - lightVal;
     }
 
-    vec3  invLight  = normalize(invMatrix * vec4(-lightDir, 0.0)).xyz;
-    vec3  invEye    = normalize(invMatrix * vec4(-eyeDirection, 0.0)).xyz;
+    vec3  invLight  = normalize(invMMatrix * vec4(-lightDir, 0.0)).xyz;
+    vec3  invEye    = normalize(invMMatrix * vec4(-eyeDirection, 0.0)).xyz;
     vec3  halfLE    = normalize(invLight + invEye);
     float diffuse   = clamp(dot(vNormal, invLight), 0.0, 1.0);
     float specular  = pow(clamp(dot(vNormal, halfLE), 0.0, 1.0), 50.0);

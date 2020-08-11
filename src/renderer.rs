@@ -65,11 +65,10 @@ impl Renderer {
         for object in self.scene.objects() {
             // 各uniform変数の設定
             let m_matrix = object.transform.matrix();
-            let mvp_matrix = vp_matrix * m_matrix;
-            let inv_matrix = m_matrix.invert().unwrap();
-            self.program.params_mut().mvp_matrix.set_value(mvp_matrix);
-            self.program.params_mut().m_matrix.set_value(m_matrix);
-            self.program.params_mut().inv_matrix.set_value(inv_matrix);
+            let params = self.program.params_mut();
+            params.m_matrix.set_value(m_matrix);
+            params.mvp_matrix.set_value(vp_matrix * m_matrix);
+            params.inv_m_matrix.set_value(m_matrix.invert().unwrap());
 
             self.render_object(object);
         }
