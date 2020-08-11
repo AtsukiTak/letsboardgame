@@ -2,7 +2,7 @@ use super::{
     buffers::VBO,
     context::{self, Context},
     shader::{FragmentShader, VertexShader},
-    types::{Mat4, Vec3, Vec4},
+    types::{Mat4, Vec2, Vec3, Vec4},
 };
 use cgmath::{Matrix4, Vector3, Vector4};
 use std::marker::PhantomData;
@@ -129,6 +129,28 @@ pub struct Attribute<V> {
     name: &'static str,
     location: u32,
     _value: PhantomData<V>,
+}
+
+impl AttributeBase for Attribute<Vec2<f32>> {
+    fn from_parts(name: &'static str, location: u32) -> Self {
+        Attribute {
+            name,
+            location,
+            _value: PhantomData,
+        }
+    }
+}
+
+impl Attribute<Vec2<f32>> {
+    pub fn attach_vbo(&self, vbo: &VBO<Vec2<f32>>) {
+        vbo.bind();
+
+        context::with(|ctx| {
+            ctx.vertex_attrib_pointer_with_i32(self.location, 2, Context::FLOAT, false, 0, 0)
+        });
+
+        vbo.unbind();
+    }
 }
 
 impl AttributeBase for Attribute<Vec3<f32>> {
