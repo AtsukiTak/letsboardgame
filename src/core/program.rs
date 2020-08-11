@@ -45,9 +45,6 @@ where
                 return Err(JsValue::from_str(err_msg.as_str()));
             }
 
-            // 現在のrenderingでこのprogramを使うことを宣言する
-            ctx.use_program(Some(&program));
-
             let visitor = ParamsVisitor::new(ctx, &program);
 
             let params = P::from_visitor(visitor)?;
@@ -59,6 +56,11 @@ where
                 params,
             })
         })
+    }
+
+    // 現在のrenderingでこのprogramを使うことを宣言する
+    pub fn use_program(&self) {
+        context::with(|ctx| ctx.use_program(Some(&self.program)))
     }
 }
 

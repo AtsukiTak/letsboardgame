@@ -28,6 +28,8 @@ impl Renderer {
         // 背景色の設定
         context::clear_color(&self.scene.background);
 
+        self.program.use_program();
+
         // ambient_color の設定
         self.program
             .params_mut()

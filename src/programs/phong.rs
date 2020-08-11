@@ -27,6 +27,10 @@ impl PhongProgram {
     pub(crate) fn params_mut(&mut self) -> &mut Params {
         &mut self.program.params
     }
+
+    pub(crate) fn use_program(&self) {
+        self.program.use_program()
+    }
 }
 
 pub struct Params {
