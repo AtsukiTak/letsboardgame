@@ -1,10 +1,30 @@
 use cgmath::{prelude::*, BaseFloat, Matrix4};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Vec2<T>(pub Vec<T>);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Vec3<T>(pub Vec<T>);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Vec4<T>(pub Vec<T>);
+
+impl<T> Vec2<T> {
+    pub fn new() -> Self {
+        Vec2(Vec::new())
+    }
+
+    pub fn push_2(&mut self, a: T, b: T) {
+        self.0.push(a);
+        self.0.push(b);
+    }
+}
+
+impl<T> AsRef<[T]> for Vec2<T> {
+    fn as_ref(&self) -> &[T] {
+        self.0.as_ref()
+    }
+}
 
 impl<T> Vec3<T> {
     pub fn new() -> Self {
