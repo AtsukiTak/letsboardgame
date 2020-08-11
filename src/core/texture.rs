@@ -29,7 +29,7 @@ impl Texture {
     }
 
     // テクスチャユニットを有効化し、そこにテクスチャをbindする
-    pub fn attach_unit(&self, unit_id: u32) {
+    pub(crate) fn attach_unit(&self, unit_id: u32) {
         self.active_unit(unit_id);
         self.bind();
     }

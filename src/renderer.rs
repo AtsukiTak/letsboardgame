@@ -3,14 +3,15 @@ use crate::{
     core::context::{self, Context},
     light::Light,
     object::Object,
-    programs::{BasicParams, BasicProgram},
+    programs::{BasicParams, BasicProgram, TextureProgram},
     scene::Scene,
 };
 use cgmath::prelude::*;
 use wasm_bindgen::JsValue;
 
 pub struct Renderer {
-    program: BasicProgram,
+    basic_program: BasicProgram,
+    texture_program: TextureProgram,
     pub scene: Scene,
     pub camera: Camera,
 }
@@ -18,7 +19,8 @@ pub struct Renderer {
 impl Renderer {
     pub fn new() -> Result<Self, JsValue> {
         Ok(Renderer {
-            program: BasicProgram::gouraud()?,
+            basic_program: BasicProgram::gouraud()?,
+            texture_program: TextureProgram::gouraud()?,
             scene: Scene::new(),
             camera: Camera::new(),
         })
@@ -29,7 +31,11 @@ impl Renderer {
         context::clear_color(&self.scene.background);
 
         for object in self.scene.objects() {
-            render_basic_object(&mut self.program, &self.scene, &self.camera, object);
+            if object.mesh.texture.is_some() {
+                render_texture_object(&mut self.texture_program, &self.scene, &self.camera, object);
+            } else {
+                render_basic_object(&mut self.basic_program, &self.scene, &self.camera, object);
+            }
         }
     }
 }
@@ -45,6 +51,38 @@ fn render_basic_object(
     set_basic_uniforms(program.params_mut(), scene, camera, object);
 
     set_basic_attrs(program.params(), object);
+
+    context::with(|ctx| {
+        ctx.draw_elements_with_i32(
+            Context::TRIANGLES,
+            object.mesh.index_len,
+            Context::UNSIGNED_SHORT,
+            0,
+        );
+    })
+}
+
+fn render_texture_object(
+    program: &mut TextureProgram,
+    scene: &Scene,
+    camera: &Camera,
+    object: &Object,
+) {
+    program.use_program();
+
+    set_basic_uniforms(program.params_mut().as_mut(), scene, camera, object);
+
+    set_basic_attrs(program.params().as_ref(), object);
+
+    // テクスチャの関連の設定
+    let texture = object.mesh.texture.as_ref().unwrap();
+
+    // texCoord attributeの設定
+    program.params().tex_coord.attach_vbo(&texture.coord);
+
+    // テクスチャユニットの設定
+    texture.data.attach_unit(0);
+    program.params_mut().texture.set_value(0);
 
     context::with(|ctx| {
         ctx.draw_elements_with_i32(
