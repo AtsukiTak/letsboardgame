@@ -1,3 +1,3 @@
-pub mod standard;
+pub mod phong;
 
-pub use standard::StdProgram;
+pub use phong::PhongProgram;

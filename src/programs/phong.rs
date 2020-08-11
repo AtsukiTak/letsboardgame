@@ -6,18 +6,18 @@ use crate::core::{
 use cgmath::{Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
-pub struct StdProgram {
+pub struct PhongProgram {
     program: Program<Params>,
 }
 
-impl StdProgram {
+impl PhongProgram {
     pub fn new() -> Result<Self, JsValue> {
-        let vert_shader = VertexShader::compile(include_str!("standard.vert"))?;
-        let frag_shader = FragmentShader::compile(include_str!("standard.frag"))?;
+        let vert_shader = VertexShader::compile(include_str!("phong.vert"))?;
+        let frag_shader = FragmentShader::compile(include_str!("phong.frag"))?;
 
         let program = Program::<Params>::new(vert_shader, frag_shader)?;
 
-        Ok(StdProgram { program })
+        Ok(PhongProgram { program })
     }
 
     pub fn params(&self) -> &Params {
