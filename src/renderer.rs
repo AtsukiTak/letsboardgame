@@ -3,14 +3,14 @@ use crate::{
     core::context::{self, Context},
     light::Light,
     object::Object,
-    programs::PhongProgram,
+    programs::BasicProgram,
     scene::Scene,
 };
 use cgmath::prelude::*;
 use wasm_bindgen::JsValue;
 
 pub struct Renderer {
-    program: PhongProgram,
+    program: BasicProgram,
     pub scene: Scene,
     pub camera: Camera,
 }
@@ -18,7 +18,7 @@ pub struct Renderer {
 impl Renderer {
     pub fn new() -> Result<Self, JsValue> {
         Ok(Renderer {
-            program: PhongProgram::new()?,
+            program: BasicProgram::phong()?,
             scene: Scene::new(),
             camera: Camera::new(),
         })

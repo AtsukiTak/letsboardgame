@@ -1,5 +1,3 @@
-pub mod gouraud;
-pub mod phong;
+pub mod basic;
 
-pub use gouraud::GouraudProgram;
-pub use phong::PhongProgram;
+pub use basic::BasicProgram;
