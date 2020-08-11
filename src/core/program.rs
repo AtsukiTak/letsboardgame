@@ -75,6 +75,7 @@ pub trait ParamsBase {
         Self: Sized;
 }
 
+#[derive(Clone, Copy)]
 pub struct ParamsVisitor<'a> {
     ctx: &'a Context,
     program: &'a web_sys::WebGlProgram,

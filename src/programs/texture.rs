@@ -1,13 +1,13 @@
+use super::BasicParams;
 use crate::core::{
     program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
     shader::{FragmentShader, VertexShader},
-    types::{Mat4, Vec2, Vec3, Vec4},
+    types::Vec2,
 };
-use cgmath::{Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct TextureProgram {
-    program: Program<Params>,
+    program: Program<TextureParams>,
 }
 
 impl TextureProgram {
@@ -21,16 +21,16 @@ impl TextureProgram {
         let vert_shader = VertexShader::compile(include_str!("texture_gouraud.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("texture_gouraud.frag"))?;
 
-        let program = Program::<Params>::new(vert_shader, frag_shader)?;
+        let program = Program::<TextureParams>::new(vert_shader, frag_shader)?;
 
         Ok(TextureProgram { program })
     }
 
-    pub(crate) fn params(&self) -> &Params {
+    pub(crate) fn params(&self) -> &TextureParams {
         &self.program.params
     }
 
-    pub(crate) fn params_mut(&mut self) -> &mut Params {
+    pub(crate) fn params_mut(&mut self) -> &mut TextureParams {
         &mut self.program.params
     }
 
@@ -39,38 +39,30 @@ impl TextureProgram {
     }
 }
 
-pub struct Params {
-    pub position: Attribute<Vec3<f32>>,
-    pub normal: Attribute<Vec3<f32>>,
-    pub color: Attribute<Vec4<f32>>,
+pub struct TextureParams {
+    pub basic: BasicParams,
     pub tex_coord: Attribute<Vec2<f32>>,
-
-    pub mvp_matrix: Uniform<Mat4<f32>>,
-    pub m_matrix: Uniform<Mat4<f32>>,
-    pub inv_m_matrix: Uniform<Mat4<f32>>,
-    pub light_type: Uniform<i32>,
-    pub light_val: Uniform<Vector3<f32>>,
-    pub eye_direction: Uniform<Vector3<f32>>,
-    pub ambient_color: Uniform<Vector4<f32>>,
     pub texture: Uniform<i32>,
 }
 
-impl ParamsBase for Params {
+impl ParamsBase for TextureParams {
     fn from_visitor<'a>(visitor: ParamsVisitor<'a>) -> Result<Self, JsValue> {
-        Ok(Params {
-            position: visitor.visit_attr("position")?,
-            normal: visitor.visit_attr("normal")?,
-            color: visitor.visit_attr("color")?,
+        Ok(TextureParams {
+            basic: BasicParams::from_visitor(visitor)?,
             tex_coord: visitor.visit_attr("texCoord")?,
-
-            mvp_matrix: visitor.visit_uniform("mvpMatrix")?,
-            m_matrix: visitor.visit_uniform("mMatrix")?,
-            inv_m_matrix: visitor.visit_uniform("invMMatrix")?,
-            light_type: visitor.visit_uniform("lightType")?,
-            light_val: visitor.visit_uniform("lightVal")?,
-            eye_direction: visitor.visit_uniform("eyeDirection")?,
-            ambient_color: visitor.visit_uniform("ambientColor")?,
             texture: visitor.visit_uniform("uTexture")?,
         })
+    }
+}
+
+impl AsRef<BasicParams> for TextureParams {
+    fn as_ref(&self) -> &BasicParams {
+        &self.basic
+    }
+}
+
+impl AsMut<BasicParams> for TextureParams {
+    fn as_mut(&mut self) -> &mut BasicParams {
+        &mut self.basic
     }
 }
