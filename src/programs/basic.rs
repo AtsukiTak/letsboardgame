@@ -7,7 +7,7 @@ use cgmath::{Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct BasicProgram {
-    program: Program<Params>,
+    program: Program<BasicParams>,
 }
 
 impl BasicProgram {
@@ -16,7 +16,7 @@ impl BasicProgram {
         let vert_shader = VertexShader::compile(include_str!("phong.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("phong.frag"))?;
 
-        let program = Program::<Params>::new(vert_shader, frag_shader)?;
+        let program = Program::<BasicParams>::new(vert_shader, frag_shader)?;
 
         Ok(BasicProgram { program })
     }
@@ -26,16 +26,16 @@ impl BasicProgram {
         let vert_shader = VertexShader::compile(include_str!("gouraud.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("gouraud.frag"))?;
 
-        let program = Program::<Params>::new(vert_shader, frag_shader)?;
+        let program = Program::<BasicParams>::new(vert_shader, frag_shader)?;
 
         Ok(BasicProgram { program })
     }
 
-    pub(crate) fn params(&self) -> &Params {
+    pub(crate) fn params(&self) -> &BasicParams {
         &self.program.params
     }
 
-    pub(crate) fn params_mut(&mut self) -> &mut Params {
+    pub(crate) fn params_mut(&mut self) -> &mut BasicParams {
         &mut self.program.params
     }
 
@@ -44,7 +44,7 @@ impl BasicProgram {
     }
 }
 
-pub struct Params {
+pub struct BasicParams {
     // for vertex shader
     pub position: Attribute<Vec3<f32>>,
     pub normal: Attribute<Vec3<f32>>,
@@ -60,9 +60,9 @@ pub struct Params {
     pub ambient_color: Uniform<Vector4<f32>>,
 }
 
-impl ParamsBase for Params {
+impl ParamsBase for BasicParams {
     fn from_visitor<'a>(visitor: ParamsVisitor<'a>) -> Result<Self, JsValue> {
-        Ok(Params {
+        Ok(BasicParams {
             // for vertex shader
             position: visitor.visit_attr("position")?,
             normal: visitor.visit_attr("normal")?,
