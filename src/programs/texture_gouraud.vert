@@ -12,7 +12,7 @@ uniform   vec3 eyeDirection; // カメラの視線方向
 uniform   vec4 ambientColor; // 環境光
 
 varying   vec4 vColor; // 各頂点における色
-varying   vec3 vTexCoord; // 各頂点におけるテクスチャの座標
+varying   vec2 vTexCoord; // 各頂点におけるテクスチャの座標
 
 vec3 invLight() {
   // World座標系における頂点座標
