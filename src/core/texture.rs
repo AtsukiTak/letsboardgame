@@ -27,6 +27,12 @@ impl Texture {
         Texture::with_image_parts(&image, image.width() as i32, image.height() as i32)
     }
 
+    // テクスチャユニットを有効化し、そこにテクスチャをbindする
+    pub fn attach_unit(&self, unit_id: u32) {
+        self.active_unit(unit_id);
+        self.bind();
+    }
+
     fn bind(&self) {
         context::with(|ctx| ctx.bind_texture(Context::TEXTURE_2D, Some(&self.gl_texture)))
     }
@@ -53,5 +59,12 @@ impl Texture {
 
     fn generate_mipmap(&self) {
         context::with(|ctx| ctx.generate_mipmap(Context::TEXTURE_2D))
+    }
+
+    // TODO
+    fn active_unit(&self, unit_id: u32) {
+        context::with(|ctx| {
+            ctx.active_texture(Context::TEXTURE0);
+        });
     }
 }
