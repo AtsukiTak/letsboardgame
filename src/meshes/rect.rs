@@ -1,7 +1,8 @@
 use super::Mesh;
 use crate::core::{
     color::Color,
-    types::{Vec3, Vec4},
+    texture::Texture,
+    types::{Vec2, Vec3, Vec4},
 };
 
 pub fn rect(width: f32, height: f32, color: Color) -> Mesh {
@@ -34,4 +35,19 @@ pub fn rect(width: f32, height: f32, color: Color) -> Mesh {
     indexes.push_3(1, 3, 2);
 
     Mesh::new(positions, colors, normals, indexes)
+}
+
+pub fn rect_with_texture(width: f32, height: f32, color: Color, texture: Texture) -> Mesh {
+    let mut mesh = rect(width, height, color);
+
+    // テクスチャ座標
+    let mut tex_coord = Vec2::new();
+    tex_coord.push_2(0.0, 0.0); // 左上
+    tex_coord.push_2(1.0, 0.0); // 右上
+    tex_coord.push_2(0.0, 1.0); // 左下
+    tex_coord.push_2(1.0, 1.0); // 右下
+
+    mesh.paste_texture(tex_coord, texture);
+
+    mesh
 }

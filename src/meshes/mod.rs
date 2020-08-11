@@ -2,7 +2,7 @@ mod rect;
 mod sphere;
 mod torus;
 
-pub use rect::rect;
+pub use rect::{rect, rect_with_texture};
 pub use sphere::sphere;
 pub use torus::torus;
 
@@ -44,5 +44,12 @@ impl Mesh {
             index_len: indexes.as_ref().len() as i32,
             texture: None,
         }
+    }
+
+    pub fn paste_texture(&mut self, coord: Vec2<f32>, data: Texture) {
+        self.texture = Some(MeshTexture {
+            coord: Rc::new(VBO::with_data(&coord)),
+            data: Rc::new(data),
+        });
     }
 }
