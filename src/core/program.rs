@@ -171,94 +171,78 @@ pub struct Uniform<V> {
     #[allow(dead_code)]
     pub name: &'static str,
     pub location: web_sys::WebGlUniformLocation,
-    pub value: V,
+    pub value: Option<V>,
+}
+
+impl<V> Uniform<V> {
+    fn new(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
+        Uniform {
+            name,
+            location,
+            value: None,
+        }
+    }
 }
 
 impl UniformBase for Uniform<Mat4<f32>> {
     fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
-        Uniform {
-            name,
-            location,
-            value: Mat4::default(),
-        }
+        Uniform::new(name, location)
     }
 }
 
 impl Uniform<Mat4<f32>> {
     pub fn set_value(&mut self, value: Matrix4<f32>) {
-        self.value = Mat4::new(value);
-
         context::with(|ctx| {
-            ctx.uniform_matrix4fv_with_f32_array(Some(&self.location), false, self.value.as_ref())
-        })
+            ctx.uniform_matrix4fv_with_f32_array(
+                Some(&self.location),
+                false,
+                &AsRef::<[f32; 16]>::as_ref(&value)[..],
+            )
+        });
+
+        self.value = Some(Mat4::new(value));
     }
 }
 
 impl UniformBase for Uniform<Vector3<f32>> {
     fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
-        Uniform {
-            name,
-            location,
-            value: Vector3::new(0.0, 0.0, 0.0),
-        }
+        Uniform::new(name, location)
     }
 }
 
 impl Uniform<Vector3<f32>> {
     pub fn set_value(&mut self, value: Vector3<f32>) {
-        self.value = value;
+        context::with(|ctx| ctx.uniform3f(Some(&self.location), value.x, value.y, value.z));
 
-        context::with(|ctx| {
-            ctx.uniform3f(
-                Some(&self.location),
-                self.value.x,
-                self.value.y,
-                self.value.z,
-            )
-        })
+        self.value = Some(value);
     }
 }
 
 impl UniformBase for Uniform<Vector4<f32>> {
     fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
-        Uniform {
-            name,
-            location,
-            value: Vector4::new(0.0, 0.0, 0.0, 0.0),
-        }
+        Uniform::new(name, location)
     }
 }
 
 impl Uniform<Vector4<f32>> {
     pub fn set_value(&mut self, value: Vector4<f32>) {
-        self.value = value;
-
         context::with(|ctx| {
-            ctx.uniform4f(
-                Some(&self.location),
-                self.value.x,
-                self.value.y,
-                self.value.z,
-                self.value.w,
-            )
-        })
+            ctx.uniform4f(Some(&self.location), value.x, value.y, value.z, value.w)
+        });
+
+        self.value = Some(value);
     }
 }
 
 impl UniformBase for Uniform<i32> {
     fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
-        Uniform {
-            name,
-            location,
-            value: 0,
-        }
+        Uniform::new(name, location)
     }
 }
 
 impl Uniform<i32> {
     pub fn set_value(&mut self, value: i32) {
-        self.value = value;
-
-        context::with(|ctx| ctx.uniform1i(Some(&self.location), self.value))
+        context::with(|ctx| ctx.uniform1i(Some(&self.location), value));
+        self.value = Some(value);
     }
 }
