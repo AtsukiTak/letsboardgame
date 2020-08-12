@@ -15,6 +15,7 @@ pub struct Program<P> {
     vert_shader: VertexShader,
     frag_shader: FragmentShader,
     pub params: P,
+    vertex_attrib_locations: Vec<u32>,
 }
 
 impl<P> Program<P>
@@ -50,11 +51,14 @@ where
 
             let params = P::from_visitor(&mut visitor)?;
 
+            let vertex_attrib_locations = visitor.vertex_attrib_locations;
+
             Ok(Program {
                 program,
                 vert_shader,
                 frag_shader,
                 params,
+                vertex_attrib_locations,
             })
         })
     }
@@ -80,11 +84,16 @@ pub trait ParamsBase {
 pub struct ParamsVisitor<'a> {
     ctx: &'a Context,
     program: &'a web_sys::WebGlProgram,
+    vertex_attrib_locations: Vec<u32>,
 }
 
 impl<'a> ParamsVisitor<'a> {
     pub fn new(ctx: &'a Context, program: &'a web_sys::WebGlProgram) -> ParamsVisitor<'a> {
-        ParamsVisitor { ctx, program }
+        ParamsVisitor {
+            ctx,
+            program,
+            vertex_attrib_locations: Vec::new(),
+        }
     }
 
     pub fn visit_attr<A>(&mut self, name: &'static str) -> Result<Attribute<StepVec<A>>, JsValue>
@@ -98,8 +107,11 @@ impl<'a> ParamsVisitor<'a> {
             let msg = format!("missing attribute \"{}\"", name);
             return Err(JsValue::from_str(msg.as_str()));
         }
+        let loc = loc as u32;
 
-        let attr = Attribute::new(name, loc as u32);
+        self.vertex_attrib_locations.push(loc);
+
+        let attr = Attribute::new(name, loc);
 
         attr.enable();
 
