@@ -2,13 +2,15 @@ precision mediump float;
 
 uniform mat4 invMMatrix; // モデル座標変換行列の逆行列
 uniform int  lightType; // 0: 光源なし, 1: 平行光源, 2: 点光源
-uniform vec3 lightVal; // 平行光源のときdirection, 点光源のときposition
+uniform vec3 lightVal; // 平行光源の時direction, 点光源の時position
 uniform vec3 eyeDirection;
 uniform vec4 ambientColor;
+uniform sampler2D uTexture;
 
-varying vec3 vPosition;     // World座標系での位置
-varying vec3 vNormal;       // Local座標系での法線ベクトル
+varying vec3 vPosition;
+varying vec3 vNormal;
 varying vec4 vColor;
+varying vec2 vTexCoord;
 
 vec3 invLight() {
   // lightType == 0 のとき、このパスを通らないようにする
@@ -29,7 +31,9 @@ vec4 specular() {
 }
 
 void main(void) {
-  gl_FragColor = (lightType == 0)
+  vec4 tex = texture2D(uTexture, vTexCoord);
+  vec4 color = (lightType == 0)
     ? vColor + ambientColor
     : vColor * diffuse() + specular() + ambientColor;
+  gl_FragColor = color * tex;
 }

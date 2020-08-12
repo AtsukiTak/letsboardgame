@@ -14,7 +14,12 @@ pub struct TextureProgram {
 impl TextureProgram {
     /// フォンシェーディング版のTextureProgramを生成する
     pub fn phong() -> Result<Self, JsValue> {
-        todo!()
+        let vert_shader = VertexShader::compile(include_str!("texture-phong.vert"))?;
+        let frag_shader = FragmentShader::compile(include_str!("texture-phong.frag"))?;
+
+        let program = Program::<TextureParams>::new(vert_shader, frag_shader)?;
+
+        Ok(TextureProgram { program })
     }
 
     /// グーローシェーディング版のTextureProgramを生成する

@@ -21,7 +21,7 @@ impl Renderer {
     pub fn new() -> Result<Self, JsValue> {
         Ok(Renderer {
             basic_program: BasicProgram::gouraud()?,
-            texture_program: TextureProgram::gouraud()?,
+            texture_program: TextureProgram::phong()?,
             scene: Scene::new(),
             camera: Camera::new(),
         })
