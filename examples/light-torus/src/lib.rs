@@ -1,6 +1,6 @@
 use cgmath::{vec3, Rad};
 use three_wasm::{
-    core::context::{self, Context},
+    core::{context, GL},
     light::Light,
     meshes,
     object::Object,
@@ -57,9 +57,11 @@ fn initialize() -> Result<(), JsValue> {
 
     context::initialize(canvas)?;
 
-    context::enable_culling();
-    context::enable_depth_test();
-    context::with(|ctx| ctx.depth_func(Context::LEQUAL));
+    context::with(|ctx| {
+        ctx.enable_culling();
+        ctx.enable_depth_test();
+        ctx.depth_func(GL::LEQUAL);
+    });
 
     Ok(())
 }
@@ -67,6 +69,6 @@ fn initialize() -> Result<(), JsValue> {
 fn clear() {
     context::with(|ctx| {
         ctx.clear_depth(1.0);
-        ctx.clear(Context::COLOR_BUFFER_BIT | Context::DEPTH_BUFFER_BIT);
+        ctx.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
     });
 }
