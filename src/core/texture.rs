@@ -1,6 +1,7 @@
-use super::context::{self, Context};
+use super::context;
 use image::RgbaImage;
 use wasm_bindgen::JsValue;
+use web_sys::WebGlRenderingContext as GL;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Texture {
@@ -35,37 +36,37 @@ impl Texture {
     }
 
     fn bind(&self) {
-        context::with(|ctx| ctx.bind_texture(Context::TEXTURE_2D, Some(&self.gl_texture)))
+        context::with(|ctx| ctx.bind_texture(GL::TEXTURE_2D, Some(&self.gl_texture)))
     }
 
     fn unbind(&self) {
-        context::with(|ctx| ctx.bind_texture(Context::TEXTURE_2D, None))
+        context::with(|ctx| ctx.bind_texture(GL::TEXTURE_2D, None))
     }
 
     fn attach_img(&self, pixels: &[u8], width: i32, height: i32) -> Result<(), JsValue> {
         context::with(|ctx| {
             ctx.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
-                Context::TEXTURE_2D,  // target
-                0,                    // level
-                Context::RGBA as i32, // internal format
+                GL::TEXTURE_2D,  // target
+                0,               // level
+                GL::RGBA as i32, // internal format
                 width,
                 height,
-                0,                      // border. Must be 0.
-                Context::RGBA,          // format
-                Context::UNSIGNED_BYTE, // type
+                0,                 // border. Must be 0.
+                GL::RGBA,          // format
+                GL::UNSIGNED_BYTE, // type
                 Some(pixels),
             )
         })
     }
 
     fn generate_mipmap(&self) {
-        context::with(|ctx| ctx.generate_mipmap(Context::TEXTURE_2D))
+        context::with(|ctx| ctx.generate_mipmap(GL::TEXTURE_2D))
     }
 
     // TODO
     fn active_unit(&self, unit_id: u32) {
         context::with(|ctx| {
-            ctx.active_texture(Context::TEXTURE0);
+            ctx.active_texture(GL::TEXTURE0);
         });
     }
 }

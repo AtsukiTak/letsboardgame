@@ -7,6 +7,7 @@ use super::{
 use cgmath::{Array, Matrix4, Vector3, Vector4};
 use std::marker::PhantomData;
 use wasm_bindgen::JsValue;
+use web_sys::WebGlRenderingContext as GL;
 
 #[allow(dead_code)]
 pub struct Program<P> {
@@ -36,7 +37,7 @@ where
             ctx.link_program(&program);
 
             let success_link = ctx
-                .get_program_parameter(&program, Context::LINK_STATUS)
+                .get_program_parameter(&program, GL::LINK_STATUS)
                 .as_bool()
                 .unwrap();
 
@@ -146,7 +147,7 @@ where
             ctx.vertex_attrib_pointer_with_i32(
                 self.location,
                 StepVec::<A>::step() as i32,
-                Context::FLOAT,
+                GL::FLOAT,
                 false,
                 0,
                 0,

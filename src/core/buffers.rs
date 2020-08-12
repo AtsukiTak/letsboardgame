@@ -1,5 +1,6 @@
-use super::context::{self, Context};
+use super::context;
 use std::marker::PhantomData;
+use web_sys::WebGlRenderingContext as GL;
 
 #[derive(Debug, PartialEq)]
 pub struct VBO<T> {
@@ -31,13 +32,13 @@ where
 
     pub fn bind(&self) {
         context::with(|ctx| {
-            ctx.bind_buffer(Context::ARRAY_BUFFER, Some(&self.buf));
+            ctx.bind_buffer(GL::ARRAY_BUFFER, Some(&self.buf));
         })
     }
 
     pub fn unbind(&self) {
         context::with(|ctx| {
-            ctx.bind_buffer(Context::ARRAY_BUFFER, None);
+            ctx.bind_buffer(GL::ARRAY_BUFFER, None);
         })
     }
 
@@ -48,11 +49,7 @@ where
             let js_array = js_sys::Float32Array::from(data.as_ref());
 
             // bufferにデータをセット
-            ctx.buffer_data_with_array_buffer_view(
-                Context::ARRAY_BUFFER,
-                &js_array,
-                Context::STATIC_DRAW,
-            );
+            ctx.buffer_data_with_array_buffer_view(GL::ARRAY_BUFFER, &js_array, GL::STATIC_DRAW);
         });
 
         self.unbind();
@@ -91,13 +88,13 @@ where
 
     pub fn bind(&self) {
         context::with(|ctx| {
-            ctx.bind_buffer(Context::ELEMENT_ARRAY_BUFFER, Some(&self.buf));
+            ctx.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, Some(&self.buf));
         })
     }
 
     pub fn unbind(&self) {
         context::with(|ctx| {
-            ctx.bind_buffer(Context::ELEMENT_ARRAY_BUFFER, None);
+            ctx.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, None);
         })
     }
 
@@ -109,9 +106,9 @@ where
 
             // bufferにデータをセット
             ctx.buffer_data_with_array_buffer_view(
-                Context::ELEMENT_ARRAY_BUFFER,
+                GL::ELEMENT_ARRAY_BUFFER,
                 &js_array,
-                Context::STATIC_DRAW,
+                GL::STATIC_DRAW,
             );
         });
 

@@ -1,5 +1,6 @@
 use super::context::{self, Context};
 use wasm_bindgen::JsValue;
+use web_sys::WebGlRenderingContext as GL;
 
 pub struct VertexShader {
     pub shader: web_sys::WebGlShader,
@@ -8,7 +9,7 @@ pub struct VertexShader {
 impl VertexShader {
     pub fn compile(src: &str) -> Result<Self, JsValue> {
         context::with(|ctx| {
-            let shader = compile(ctx, src, Context::VERTEX_SHADER)?;
+            let shader = compile(ctx, src, GL::VERTEX_SHADER)?;
             Ok(VertexShader { shader })
         })
     }
@@ -21,7 +22,7 @@ pub struct FragmentShader {
 impl FragmentShader {
     pub fn compile(src: &str) -> Result<Self, JsValue> {
         context::with(|ctx| {
-            let shader = compile(ctx, src, Context::FRAGMENT_SHADER)?;
+            let shader = compile(ctx, src, GL::FRAGMENT_SHADER)?;
             Ok(FragmentShader { shader })
         })
     }
@@ -39,7 +40,7 @@ fn compile(ctx: &Context, src: &str, shader_type: u32) -> Result<web_sys::WebGlS
 
     // コンパイルに成功したかどうか
     if ctx
-        .get_shader_parameter(&shader, Context::COMPILE_STATUS)
+        .get_shader_parameter(&shader, GL::COMPILE_STATUS)
         .as_bool()
         .unwrap_or(false)
     {

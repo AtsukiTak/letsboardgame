@@ -1,6 +1,6 @@
 use crate::{
     camera::Camera,
-    core::context::{self, Context},
+    core::context,
     light::Light,
     object::Object,
     programs::{BasicParams, BasicProgram, TextureProgram},
@@ -8,6 +8,7 @@ use crate::{
 };
 use cgmath::prelude::*;
 use wasm_bindgen::JsValue;
+use web_sys::WebGlRenderingContext as GL;
 
 pub struct Renderer {
     basic_program: BasicProgram,
@@ -28,7 +29,7 @@ impl Renderer {
 
     pub fn render(&mut self) {
         // 背景色の設定
-        context::clear_color(&self.scene.background);
+        context::with(|ctx| ctx.clear_color(&self.scene.background));
 
         for object in self.scene.objects() {
             if object.mesh.texture.is_some() {
@@ -53,12 +54,7 @@ fn render_basic_object(
     set_basic_attrs(program.params(), object);
 
     context::with(|ctx| {
-        ctx.draw_elements_with_i32(
-            Context::TRIANGLES,
-            object.mesh.index_len,
-            Context::UNSIGNED_SHORT,
-            0,
-        );
+        ctx.draw_elements_with_i32(GL::TRIANGLES, object.mesh.index_len, GL::UNSIGNED_SHORT, 0);
     })
 }
 
@@ -85,12 +81,7 @@ fn render_texture_object(
     program.params_mut().texture.set_value(0);
 
     context::with(|ctx| {
-        ctx.draw_elements_with_i32(
-            Context::TRIANGLES,
-            object.mesh.index_len,
-            Context::UNSIGNED_SHORT,
-            0,
-        );
+        ctx.draw_elements_with_i32(GL::TRIANGLES, object.mesh.index_len, GL::UNSIGNED_SHORT, 0);
     })
 }
 
