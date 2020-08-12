@@ -8,6 +8,7 @@ use web_sys::WebGlRenderingContext as GL;
 
 pub struct Context {
     gl: GL,
+    pub enabled_vertex_attrib_locations: Vec<u32>,
 }
 
 thread_local! {
@@ -17,7 +18,10 @@ thread_local! {
 pub fn initialize(canvas: web_sys::HtmlCanvasElement) -> Result<(), JsValue> {
     let gl = canvas.get_context("webgl")?.unwrap().dyn_into::<GL>()?;
 
-    let context = Context { gl };
+    let context = Context {
+        gl,
+        enabled_vertex_attrib_locations: Vec::new(),
+    };
 
     GLOBAL_CONTEXT_CELL.with(|cell| cell.replace(Some(context)));
 
@@ -27,9 +31,9 @@ pub fn initialize(canvas: web_sys::HtmlCanvasElement) -> Result<(), JsValue> {
 /// panic if uninitialized
 pub fn with<F, T>(func: F) -> T
 where
-    F: FnOnce(&Context) -> T,
+    F: FnOnce(&mut Context) -> T,
 {
-    GLOBAL_CONTEXT_CELL.with(|cell| func(cell.borrow().as_ref().unwrap()))
+    GLOBAL_CONTEXT_CELL.with(|cell| func(cell.borrow_mut().as_mut().unwrap()))
 }
 
 impl Context {

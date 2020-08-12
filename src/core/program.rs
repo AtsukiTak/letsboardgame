@@ -65,8 +65,33 @@ where
 
     // 現在のrenderingでこのprogramを使うことを宣言する
     pub fn use_program(&self) {
-        // vertex attributeの有効化と無効化
-        context::with(|ctx| ctx.use_program(Some(&self.program)))
+        context::with(|ctx| {
+            let this = &self.vertex_attrib_locations;
+
+            // このprogramで使用しないvertex_attribの無効化
+            while let Some((idx, loc)) = ctx
+                .enabled_vertex_attrib_locations
+                .iter()
+                .enumerate()
+                .find(|(_, loc)| !this.contains(loc))
+            {
+                ctx.disable_vertex_attrib_array(*loc);
+                ctx.enabled_vertex_attrib_locations.swap_remove(idx);
+            }
+
+            // このprogramで新たに使用するvertex_attribの有効化
+            while let Some(loc) = self
+                .vertex_attrib_locations
+                .iter()
+                .find(|loc| !ctx.enabled_vertex_attrib_locations.contains(loc))
+            {
+                ctx.enable_vertex_attrib_array(*loc);
+                ctx.enabled_vertex_attrib_locations.push(*loc);
+            }
+
+            // programの有効化
+            ctx.use_program(Some(&self.program))
+        })
     }
 }
 
@@ -111,11 +136,7 @@ impl<'a> ParamsVisitor<'a> {
 
         self.vertex_attrib_locations.push(loc);
 
-        let attr = Attribute::new(name, loc);
-
-        attr.enable();
-
-        Ok(attr)
+        Ok(Attribute::new(name, loc))
     }
 
     pub fn visit_uniform<T>(&self, name: &'static str) -> Result<Uniform<T>, JsValue> {
@@ -167,14 +188,6 @@ where
         });
 
         vbo.unbind();
-    }
-
-    pub fn enable(&self) {
-        context::with(|ctx| ctx.enable_vertex_attrib_array(self.location))
-    }
-
-    pub fn disable(&self) {
-        context::with(|ctx| ctx.disable_vertex_attrib_array(self.location))
     }
 }
 
