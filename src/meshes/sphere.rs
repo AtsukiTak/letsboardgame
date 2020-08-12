@@ -1,12 +1,13 @@
 use super::Mesh;
-use crate::core::types::{Vec3, Vec4};
+use crate::core::types::StepVec;
+use cgmath::{vec3, vec4, Vector3, Vector4};
 use palette::{Hsva, Srgba};
 
 pub fn sphere(row: usize, column: usize, radius: f32) -> Mesh {
-    let mut pos = Vec3::new();
-    let mut nor = Vec3::new();
-    let mut col = Vec4::new();
-    let mut idx = Vec3::new();
+    let mut pos = StepVec::<Vector3<f32>>::new();
+    let mut nor = StepVec::<Vector3<f32>>::new();
+    let mut col = StepVec::<Vector4<f32>>::new();
+    let mut idx = StepVec::<Vector3<i16>>::new();
 
     for i in 0..=row {
         let r = std::f32::consts::PI / row as f32 * i as f32;
@@ -19,17 +20,17 @@ pub fn sphere(row: usize, column: usize, radius: f32) -> Mesh {
             let tz = rr * radius * tr.sin();
             let rx = rr * tr.cos();
             let rz = rr * tr.sin();
-            pos.push_3(tx, ty, tz);
-            nor.push_3(rx, ry, rz);
+            pos.push(vec3(tx, ty, tz));
+            nor.push(vec3(rx, ry, rz));
 
             let hsva = Hsva::new(360.0 / row as f32 * i as f32, 1.0, 1.0, 1.0);
             let rgba = Srgba::from(hsva);
-            col.push_4(
+            col.push(vec4(
                 rgba.color.red,
                 rgba.color.green,
                 rgba.color.blue,
                 rgba.alpha,
-            );
+            ));
         }
     }
 
@@ -37,8 +38,8 @@ pub fn sphere(row: usize, column: usize, radius: f32) -> Mesh {
     for i in 0..row {
         for ii in 0..column {
             let r = (column + 1) * i + ii;
-            idx.push_3(r, r + 1, r + column + 2);
-            idx.push_3(r, r + column + 2, r + column + 1);
+            idx.push(vec3(r, r + 1, r + column + 2));
+            idx.push(vec3(r, r + column + 2, r + column + 1));
         }
     }
 

@@ -2,8 +2,9 @@ use super::BasicParams;
 use crate::core::{
     program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
     shader::{FragmentShader, VertexShader},
-    types::Vec2,
+    types::StepVec,
 };
+use cgmath::Vector2;
 use wasm_bindgen::prelude::*;
 
 pub struct TextureProgram {
@@ -41,7 +42,7 @@ impl TextureProgram {
 
 pub struct TextureParams {
     pub basic: BasicParams,
-    pub tex_coord: Attribute<Vec2<f32>>,
+    pub tex_coord: Attribute<StepVec<Vector2<f32>>>,
     pub texture: Uniform<i32>,
 }
 

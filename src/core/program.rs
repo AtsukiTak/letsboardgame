@@ -2,9 +2,9 @@ use super::{
     buffers::VBO,
     context::{self, Context},
     shader::{FragmentShader, VertexShader},
-    types::{Mat4, Vec2, Vec3, Vec4},
+    types::{Mat4, StepVec},
 };
-use cgmath::{Matrix4, Vector3, Vector4};
+use cgmath::{Array, Matrix4, Vector3, Vector4};
 use std::marker::PhantomData;
 use wasm_bindgen::JsValue;
 
@@ -86,7 +86,10 @@ impl<'a> ParamsVisitor<'a> {
         ParamsVisitor { ctx, program }
     }
 
-    pub fn visit_attr<T>(&self, name: &'static str) -> Result<Attribute<T>, JsValue> {
+    pub fn visit_attr<A>(&self, name: &'static str) -> Result<Attribute<StepVec<A>>, JsValue>
+    where
+        A: Array<Element = f32>,
+    {
         // program中の位置（location）を取得
         let loc = self.ctx.get_attrib_location(self.program, name);
 
@@ -125,7 +128,10 @@ pub struct Attribute<V> {
     _value: PhantomData<V>,
 }
 
-impl<V> Attribute<V> {
+impl<A> Attribute<StepVec<A>>
+where
+    A: Array<Element = f32>,
+{
     fn new(name: &'static str, location: u32) -> Self {
         Attribute {
             name,
@@ -133,38 +139,19 @@ impl<V> Attribute<V> {
             _value: PhantomData,
         }
     }
-}
 
-impl Attribute<Vec2<f32>> {
-    pub fn attach_vbo(&self, vbo: &VBO<Vec2<f32>>) {
+    pub fn attach_vbo(&self, vbo: &VBO<StepVec<A>>) {
         vbo.bind();
 
         context::with(|ctx| {
-            ctx.vertex_attrib_pointer_with_i32(self.location, 2, Context::FLOAT, false, 0, 0)
-        });
-
-        vbo.unbind();
-    }
-}
-
-impl Attribute<Vec3<f32>> {
-    pub fn attach_vbo(&self, vbo: &VBO<Vec3<f32>>) {
-        vbo.bind();
-
-        context::with(|ctx| {
-            ctx.vertex_attrib_pointer_with_i32(self.location, 3, Context::FLOAT, false, 0, 0)
-        });
-
-        vbo.unbind();
-    }
-}
-
-impl Attribute<Vec4<f32>> {
-    pub fn attach_vbo(&self, vbo: &VBO<Vec4<f32>>) {
-        vbo.bind();
-
-        context::with(|ctx| {
-            ctx.vertex_attrib_pointer_with_i32(self.location, 4, Context::FLOAT, false, 0, 0)
+            ctx.vertex_attrib_pointer_with_i32(
+                self.location,
+                StepVec::<A>::step() as i32,
+                Context::FLOAT,
+                false,
+                0,
+                0,
+            )
         });
 
         vbo.unbind();

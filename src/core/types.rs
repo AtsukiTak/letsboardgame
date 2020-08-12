@@ -1,65 +1,47 @@
 use cgmath::{prelude::*, BaseFloat, Matrix4};
+use std::marker::PhantomData;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Vec2<T>(pub Vec<T>);
+pub struct StepVec<A>
+where
+    A: Array,
+{
+    vec: Vec<A::Element>,
+    _arr: PhantomData<A>,
+}
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Vec3<T>(pub Vec<T>);
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Vec4<T>(pub Vec<T>);
-
-impl<T> Vec2<T> {
+impl<A> StepVec<A>
+where
+    A: Array,
+{
     pub fn new() -> Self {
-        Vec2(Vec::new())
+        StepVec {
+            vec: Vec::new(),
+            _arr: PhantomData,
+        }
     }
 
-    pub fn push_2(&mut self, a: T, b: T) {
-        self.0.push(a);
-        self.0.push(b);
-    }
-}
-
-impl<T> AsRef<[T]> for Vec2<T> {
-    fn as_ref(&self) -> &[T] {
-        self.0.as_ref()
-    }
-}
-
-impl<T> Vec3<T> {
-    pub fn new() -> Self {
-        Vec3(Vec::new())
+    pub fn step() -> usize {
+        A::len()
     }
 
-    pub fn push_3(&mut self, a: T, b: T, c: T) {
-        self.0.push(a);
-        self.0.push(b);
-        self.0.push(c);
+    pub fn len(&self) -> usize {
+        self.vec.len()
+    }
+
+    pub fn push(&mut self, array: A) {
+        for i in 0..A::len() {
+            self.vec.push(array[i]);
+        }
     }
 }
 
-impl<T> AsRef<[T]> for Vec3<T> {
-    fn as_ref(&self) -> &[T] {
-        self.0.as_ref()
-    }
-}
-
-impl<T> Vec4<T> {
-    pub fn new() -> Self {
-        Vec4(Vec::new())
-    }
-
-    pub fn push_4(&mut self, a: T, b: T, c: T, d: T) {
-        self.0.push(a);
-        self.0.push(b);
-        self.0.push(c);
-        self.0.push(d);
-    }
-}
-
-impl<T> AsRef<[T]> for Vec4<T> {
-    fn as_ref(&self) -> &[T] {
-        self.0.as_ref()
+impl<A> AsRef<[A::Element]> for StepVec<A>
+where
+    A: Array,
+{
+    fn as_ref(&self) -> &[A::Element] {
+        self.vec.as_ref()
     }
 }
 

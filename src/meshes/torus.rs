@@ -1,14 +1,15 @@
-use super::{Mesh, Vec3, Vec4};
-use cgmath::{prelude::*, Rad};
+use super::Mesh;
+use crate::core::types::StepVec;
+use cgmath::{prelude::*, vec3, vec4, Rad, Vector3, Vector4};
 use palette::{Hsva, Srgba};
 
 const CIRCLE_RAD: Rad<f32> = Rad(std::f32::consts::PI * 2.0);
 
 pub fn torus(tube_radius: f32, tube_steps: u32, core_radius: f32, core_steps: u32) -> Mesh {
-    let mut positions = Vec3::new();
-    let mut colors = Vec4::new();
-    let mut indexes = Vec3::new();
-    let mut normals = Vec3::new();
+    let mut positions = StepVec::<Vector3<f32>>::new();
+    let mut colors = StepVec::<Vector4<f32>>::new();
+    let mut indexes = StepVec::<Vector3<i16>>::new();
+    let mut normals = StepVec::<Vector3<f32>>::new();
 
     for tube_i in 0..=tube_steps {
         let (tube_steps_f, tube_i_f) = (tube_steps as f32, tube_i as f32);
@@ -25,17 +26,17 @@ pub fn torus(tube_radius: f32, tube_steps: u32, core_radius: f32, core_steps: u3
             let x = (core_radius + tube_x) * core_rad.cos();
             let y = tube_y;
             let z = (core_radius + tube_x) * core_rad.sin();
-            positions.push_3(x, y, z);
+            positions.push(vec3(x, y, z));
 
             // 色情報の計算
             let hsva = Hsva::new(360.0 / core_steps_f * core_i_f, 1.0, 1.0, 1.0);
             let rgba = Srgba::from(hsva);
-            colors.push_4(
+            colors.push(vec4(
                 rgba.color.red,
                 rgba.color.green,
                 rgba.color.blue,
                 rgba.alpha,
-            );
+            ));
 
             // 法線情報の計算
             // let nx = tube_x * core_rad.cos();
@@ -47,7 +48,7 @@ pub fn torus(tube_radius: f32, tube_steps: u32, core_radius: f32, core_steps: u3
             let nx = tube_rad.cos() * core_rad.cos();
             let ny = tube_rad.sin();
             let nz = tube_rad.cos() * core_rad.sin();
-            normals.push_3(nx, ny, nz);
+            normals.push(vec3(nx, ny, nz));
         }
     }
 
@@ -60,8 +61,8 @@ pub fn torus(tube_radius: f32, tube_steps: u32, core_radius: f32, core_steps: u3
             let top_left = idx + 1;
             let bottom_right = idx + core_steps as i16 + 1;
             let bottom_left = idx + core_steps as i16 + 2;
-            indexes.push_3(top_right, bottom_right, top_left);
-            indexes.push_3(bottom_right, bottom_left, top_left);
+            indexes.push(vec3(top_right, bottom_right, top_left));
+            indexes.push(vec3(bottom_right, bottom_left, top_left));
         }
     }
 
@@ -79,10 +80,10 @@ mod tests {
     // テキスト（https://wgld.org/d/webgl/w021.html）に載っている
     // torus生成関数の単純な移植
     fn torus_origin_in_rust(row: usize, column: usize, irad: f32, orad: f32) -> Mesh {
-        let mut pos = Vec3::new();
-        let mut nor = Vec3::new();
-        let mut col = Vec4::new();
-        let mut idx = Vec3::new();
+        let mut pos = StepVec::<Vector3<f32>>::new();
+        let mut nor = StepVec::<Vector3<f32>>::new();
+        let mut col = StepVec::<Vector4<f32>>::new();
+        let mut idx = StepVec::<Vector3<f32>>::new();
 
         for i in 0..=row {
             let r = std::f32::consts::PI * 2.0 / row as f32 * i as f32;
@@ -95,24 +96,24 @@ mod tests {
                 let tz = (rr * irad + orad) * tr.sin();
                 let rx = rr * tr.cos();
                 let rz = rr * tr.sin();
-                pos.push_3(tx, ty, tz);
-                nor.push_3(rx, ry, rz);
+                pos.push(vec3(tx, ty, tz));
+                nor.push(vec3(rx, ry, rz));
                 let hsva = Hsva::new(360.0 / column as f32 * ii as f32, 1.0, 1.0, 1.0);
                 let rgba = Srgba::from(hsva);
-                col.push_4(
+                col.push(vec4(
                     rgba.color.red,
                     rgba.color.green,
                     rgba.color.blue,
                     rgba.alpha,
-                );
+                ));
             }
         }
 
         for i in 0..(row as i16) {
             for ii in 0..(column as i16) {
                 let r = (column as i16 + 1) * i + ii;
-                idx.push_3(r, r + column as i16 + 1, r + 1);
-                idx.push_3(r + column as i16 + 1, r + column as i16 + 2, r + 1);
+                idx.push(vec3(r, r + column as i16 + 1, r + 1));
+                idx.push(vec3(r + column as i16 + 1, r + column as i16 + 2, r + 1));
             }
         }
 

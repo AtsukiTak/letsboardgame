@@ -1,7 +1,7 @@
 use crate::core::{
     program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
     shader::{FragmentShader, VertexShader},
-    types::{Mat4, Vec3, Vec4},
+    types::{Mat4, StepVec},
 };
 use cgmath::{Vector3, Vector4};
 use wasm_bindgen::prelude::*;
@@ -46,9 +46,9 @@ impl BasicProgram {
 
 pub struct BasicParams {
     // for vertex shader
-    pub position: Attribute<Vec3<f32>>,
-    pub normal: Attribute<Vec3<f32>>,
-    pub color: Attribute<Vec4<f32>>,
+    pub position: Attribute<StepVec<Vector3<f32>>>,
+    pub normal: Attribute<StepVec<Vector3<f32>>>,
+    pub color: Attribute<StepVec<Vector4<f32>>>,
     pub mvp_matrix: Uniform<Mat4<f32>>,
     pub m_matrix: Uniform<Mat4<f32>>,
 
