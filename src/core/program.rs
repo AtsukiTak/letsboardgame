@@ -103,12 +103,9 @@ impl<'a> ParamsVisitor<'a> {
         Ok(Attribute::new(name, loc as u32))
     }
 
-    pub fn visit_uniform<T>(&self, name: &'static str) -> Result<T, JsValue>
-    where
-        T: UniformBase,
-    {
+    pub fn visit_uniform<T>(&self, name: &'static str) -> Result<Uniform<T>, JsValue> {
         if let Some(loc) = self.ctx.get_uniform_location(self.program, name) {
-            Ok(T::from_parts(name, loc))
+            Ok(Uniform::new(name, loc))
         } else {
             let msg = format!("missing uniform \"{}\"", name);
             Err(JsValue::from_str(msg.as_str()))
@@ -163,10 +160,6 @@ where
  * Uniform
  * ==========
  */
-pub trait UniformBase {
-    fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self;
-}
-
 pub struct Uniform<V> {
     #[allow(dead_code)]
     pub name: &'static str,
@@ -184,12 +177,6 @@ impl<V> Uniform<V> {
     }
 }
 
-impl UniformBase for Uniform<Mat4<f32>> {
-    fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
-        Uniform::new(name, location)
-    }
-}
-
 impl Uniform<Mat4<f32>> {
     pub fn set_value(&mut self, value: Matrix4<f32>) {
         context::with(|ctx| {
@@ -204,23 +191,11 @@ impl Uniform<Mat4<f32>> {
     }
 }
 
-impl UniformBase for Uniform<Vector3<f32>> {
-    fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
-        Uniform::new(name, location)
-    }
-}
-
 impl Uniform<Vector3<f32>> {
     pub fn set_value(&mut self, value: Vector3<f32>) {
         context::with(|ctx| ctx.uniform3f(Some(&self.location), value.x, value.y, value.z));
 
         self.value = Some(value);
-    }
-}
-
-impl UniformBase for Uniform<Vector4<f32>> {
-    fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
-        Uniform::new(name, location)
     }
 }
 
@@ -231,12 +206,6 @@ impl Uniform<Vector4<f32>> {
         });
 
         self.value = Some(value);
-    }
-}
-
-impl UniformBase for Uniform<i32> {
-    fn from_parts(name: &'static str, location: web_sys::WebGlUniformLocation) -> Self {
-        Uniform::new(name, location)
     }
 }
 
