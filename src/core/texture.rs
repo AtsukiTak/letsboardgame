@@ -16,7 +16,11 @@ impl Texture {
     }
 
     /// 画像データとともにTextureオブジェクトを初期化する
+    /// 画像サイズは、縦横それぞれ2の冪乗でなければならない
     pub fn with_image_parts(pixels: &[u8], width: i32, height: i32) -> Result<Texture, JsValue> {
+        assert_eq!(width.count_ones(), 1);
+        assert_eq!(height.count_ones(), 1);
+
         let tex = Texture::new();
         tex.bind();
         tex.attach_img(pixels, width, height)?;
