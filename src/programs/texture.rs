@@ -2,7 +2,7 @@ use super::BasicParams;
 use crate::core::{
     program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
     shader::{FragmentShader, VertexShader},
-    types::StepVec,
+    vec::StepVec,
 };
 use cgmath::Vector2;
 use wasm_bindgen::prelude::*;

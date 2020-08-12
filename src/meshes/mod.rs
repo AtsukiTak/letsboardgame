@@ -9,7 +9,7 @@ pub use torus::torus;
 use crate::core::{
     buffers::{IBO, VBO},
     texture::Texture,
-    types::StepVec,
+    vec::StepVec,
 };
 use cgmath::{Vector2, Vector3, Vector4};
 use std::rc::Rc;

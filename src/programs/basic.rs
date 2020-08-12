@@ -1,7 +1,7 @@
 use crate::core::{
     program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
     shader::{FragmentShader, VertexShader},
-    types::StepVec,
+    vec::StepVec,
 };
 use cgmath::{Matrix4, Vector3, Vector4};
 use wasm_bindgen::prelude::*;

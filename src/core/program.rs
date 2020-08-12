@@ -2,7 +2,7 @@ use super::{
     buffers::VBO,
     context::{self, Context},
     shader::{FragmentShader, VertexShader},
-    types::StepVec,
+    vec::StepVec,
 };
 use cgmath::{Array, Matrix4, Vector3, Vector4};
 use std::marker::PhantomData;

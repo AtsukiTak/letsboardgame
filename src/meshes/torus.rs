@@ -1,5 +1,5 @@
 use super::Mesh;
-use crate::core::types::StepVec;
+use crate::core::vec::StepVec;
 use cgmath::{prelude::*, vec3, vec4, Rad, Vector3, Vector4};
 use palette::{Hsva, Srgba};
 
