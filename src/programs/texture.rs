@@ -47,7 +47,7 @@ pub struct TextureParams {
 }
 
 impl ParamsBase for TextureParams {
-    fn from_visitor<'a>(visitor: ParamsVisitor<'a>) -> Result<Self, JsValue> {
+    fn from_visitor<'a>(visitor: &mut ParamsVisitor<'a>) -> Result<Self, JsValue> {
         Ok(TextureParams {
             basic: BasicParams::from_visitor(visitor)?,
             tex_coord: visitor.visit_attr("texCoord")?,

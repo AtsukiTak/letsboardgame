@@ -61,7 +61,7 @@ pub struct BasicParams {
 }
 
 impl ParamsBase for BasicParams {
-    fn from_visitor<'a>(visitor: ParamsVisitor<'a>) -> Result<Self, JsValue> {
+    fn from_visitor<'a>(visitor: &mut ParamsVisitor<'a>) -> Result<Self, JsValue> {
         Ok(BasicParams {
             // for vertex shader
             position: visitor.visit_attr("position")?,

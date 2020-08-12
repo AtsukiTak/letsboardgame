@@ -46,9 +46,9 @@ where
                 return Err(JsValue::from_str(err_msg.as_str()));
             }
 
-            let visitor = ParamsVisitor::new(ctx, &program);
+            let mut visitor = ParamsVisitor::new(ctx, &program);
 
-            let params = P::from_visitor(visitor)?;
+            let params = P::from_visitor(&mut visitor)?;
 
             Ok(Program {
                 program,
@@ -61,6 +61,7 @@ where
 
     // 現在のrenderingでこのprogramを使うことを宣言する
     pub fn use_program(&self) {
+        // vertex attributeの有効化と無効化
         context::with(|ctx| ctx.use_program(Some(&self.program)))
     }
 }
@@ -71,12 +72,11 @@ where
  * ========
  */
 pub trait ParamsBase {
-    fn from_visitor<'a>(visitor: ParamsVisitor<'a>) -> Result<Self, JsValue>
+    fn from_visitor<'a>(visitor: &mut ParamsVisitor<'a>) -> Result<Self, JsValue>
     where
         Self: Sized;
 }
 
-#[derive(Clone, Copy)]
 pub struct ParamsVisitor<'a> {
     ctx: &'a Context,
     program: &'a web_sys::WebGlProgram,
@@ -87,7 +87,7 @@ impl<'a> ParamsVisitor<'a> {
         ParamsVisitor { ctx, program }
     }
 
-    pub fn visit_attr<A>(&self, name: &'static str) -> Result<Attribute<StepVec<A>>, JsValue>
+    pub fn visit_attr<A>(&mut self, name: &'static str) -> Result<Attribute<StepVec<A>>, JsValue>
     where
         A: Array<Element = f32>,
     {
