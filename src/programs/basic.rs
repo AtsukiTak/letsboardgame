@@ -13,8 +13,8 @@ pub struct BasicProgram {
 impl BasicProgram {
     /// フォンシェーディング版のBasicProgramを生成する
     pub fn phong() -> Result<Self, JsValue> {
-        let vert_shader = VertexShader::compile(include_str!("phong.vert"))?;
-        let frag_shader = FragmentShader::compile(include_str!("phong.frag"))?;
+        let vert_shader = VertexShader::compile(include_str!("basic-phong.vert"))?;
+        let frag_shader = FragmentShader::compile(include_str!("basic-phong.frag"))?;
 
         let program = Program::<BasicParams>::new(vert_shader, frag_shader)?;
 
@@ -23,8 +23,8 @@ impl BasicProgram {
 
     /// グーローシェーディング版のBasicProgramを生成する
     pub fn gouraud() -> Result<Self, JsValue> {
-        let vert_shader = VertexShader::compile(include_str!("gouraud.vert"))?;
-        let frag_shader = FragmentShader::compile(include_str!("gouraud.frag"))?;
+        let vert_shader = VertexShader::compile(include_str!("basic-gouraud.vert"))?;
+        let frag_shader = FragmentShader::compile(include_str!("basic-gouraud.frag"))?;
 
         let program = Program::<BasicParams>::new(vert_shader, frag_shader)?;
 

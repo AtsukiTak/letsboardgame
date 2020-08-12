@@ -19,8 +19,8 @@ impl TextureProgram {
 
     /// グーローシェーディング版のTextureProgramを生成する
     pub fn gouraud() -> Result<Self, JsValue> {
-        let vert_shader = VertexShader::compile(include_str!("texture_gouraud.vert"))?;
-        let frag_shader = FragmentShader::compile(include_str!("texture_gouraud.frag"))?;
+        let vert_shader = VertexShader::compile(include_str!("texture-gouraud.vert"))?;
+        let frag_shader = FragmentShader::compile(include_str!("texture-gouraud.frag"))?;
 
         let program = Program::<TextureParams>::new(vert_shader, frag_shader)?;
 
