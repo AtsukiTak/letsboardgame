@@ -2,7 +2,7 @@ use super::{
     buffers::VBO,
     context::{self, Context},
     shader::{FragmentShader, VertexShader},
-    types::{Mat4, StepVec},
+    types::StepVec,
 };
 use cgmath::{Array, Matrix4, Vector3, Vector4};
 use std::marker::PhantomData;
@@ -177,7 +177,7 @@ impl<V> Uniform<V> {
     }
 }
 
-impl Uniform<Mat4<f32>> {
+impl Uniform<Matrix4<f32>> {
     pub fn set_value(&mut self, value: Matrix4<f32>) {
         context::with(|ctx| {
             ctx.uniform_matrix4fv_with_f32_array(
@@ -187,7 +187,7 @@ impl Uniform<Mat4<f32>> {
             )
         });
 
-        self.value = Some(Mat4::new(value));
+        self.value = Some(value);
     }
 }
 
