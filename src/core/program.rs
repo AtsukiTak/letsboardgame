@@ -98,9 +98,11 @@ impl<'a> ParamsVisitor<'a> {
             return Err(JsValue::from_str(msg.as_str()));
         }
 
-        self.ctx.enable_vertex_attrib_array(loc as u32);
+        let attr = Attribute::new(name, loc as u32);
 
-        Ok(Attribute::new(name, loc as u32))
+        attr.enable();
+
+        Ok(attr)
     }
 
     pub fn visit_uniform<T>(&self, name: &'static str) -> Result<Uniform<T>, JsValue> {
@@ -152,6 +154,14 @@ where
         });
 
         vbo.unbind();
+    }
+
+    pub fn enable(&self) {
+        context::with(|ctx| ctx.enable_vertex_attrib_array(self.location))
+    }
+
+    pub fn disable(&self) {
+        context::with(|ctx| ctx.disable_vertex_attrib_array(self.location))
     }
 }
 
