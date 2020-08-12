@@ -28,8 +28,8 @@ pub fn rect(width: f32, height: f32, color: Color) -> Mesh {
     normals.push(vec3(0.0, 0.0, 1.0));
 
     let mut indexes = StepVec::<Vector3<i16>>::new();
-    indexes.push(vec3(0, 1, 2));
-    indexes.push(vec3(1, 3, 2));
+    indexes.push(vec3(0, 2, 1));
+    indexes.push(vec3(1, 2, 3));
 
     Mesh::new(positions, colors, normals, indexes)
 }
