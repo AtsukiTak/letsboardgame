@@ -86,10 +86,7 @@ impl<'a> ParamsVisitor<'a> {
         ParamsVisitor { ctx, program }
     }
 
-    pub fn visit_attr<T>(&self, name: &'static str) -> Result<T, JsValue>
-    where
-        T: AttributeBase,
-    {
+    pub fn visit_attr<T>(&self, name: &'static str) -> Result<Attribute<T>, JsValue> {
         // program中の位置（location）を取得
         let loc = self.ctx.get_attrib_location(self.program, name);
 
@@ -100,7 +97,7 @@ impl<'a> ParamsVisitor<'a> {
 
         self.ctx.enable_vertex_attrib_array(loc as u32);
 
-        Ok(T::from_parts(name, loc as u32))
+        Ok(Attribute::new(name, loc as u32))
     }
 
     pub fn visit_uniform<T>(&self, name: &'static str) -> Result<T, JsValue>
@@ -121,10 +118,6 @@ impl<'a> ParamsVisitor<'a> {
  * Attribute
  * ==========
  */
-pub trait AttributeBase {
-    fn from_parts(name: &'static str, location: u32) -> Self;
-}
-
 pub struct Attribute<V> {
     #[allow(dead_code)]
     name: &'static str,
@@ -132,8 +125,8 @@ pub struct Attribute<V> {
     _value: PhantomData<V>,
 }
 
-impl AttributeBase for Attribute<Vec2<f32>> {
-    fn from_parts(name: &'static str, location: u32) -> Self {
+impl<V> Attribute<V> {
+    fn new(name: &'static str, location: u32) -> Self {
         Attribute {
             name,
             location,
@@ -154,16 +147,6 @@ impl Attribute<Vec2<f32>> {
     }
 }
 
-impl AttributeBase for Attribute<Vec3<f32>> {
-    fn from_parts(name: &'static str, location: u32) -> Self {
-        Attribute {
-            name,
-            location,
-            _value: PhantomData,
-        }
-    }
-}
-
 impl Attribute<Vec3<f32>> {
     pub fn attach_vbo(&self, vbo: &VBO<Vec3<f32>>) {
         vbo.bind();
@@ -173,16 +156,6 @@ impl Attribute<Vec3<f32>> {
         });
 
         vbo.unbind();
-    }
-}
-
-impl AttributeBase for Attribute<Vec4<f32>> {
-    fn from_parts(name: &'static str, location: u32) -> Self {
-        Attribute {
-            name,
-            location,
-            _value: PhantomData,
-        }
     }
 }
 
