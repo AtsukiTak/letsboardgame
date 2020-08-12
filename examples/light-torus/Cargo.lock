@@ -296,6 +296,7 @@ version = "0.1.0"
 dependencies = [
  "cgmath",
  "gloo-timers",
+ "image",
  "three-wasm",
  "wasm-bindgen",
  "wasm-bindgen-futures",

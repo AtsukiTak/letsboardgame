@@ -1,6 +1,6 @@
 use cgmath::{vec3, Rad};
 use three_wasm::{
-    core::{context, GL},
+    core::{color::Color, context, texture::Texture, GL},
     light::Light,
     meshes,
     object::Object,
@@ -12,14 +12,11 @@ use wasm_bindgen::{prelude::*, JsCast as _};
 pub async fn start() -> Result<(), JsValue> {
     initialize()?;
 
-    let torus_mesh = meshes::torus(1.0, 64, 2.0, 64);
-    let torus = Object::new(torus_mesh);
-    torus.transform.pos.x.set(-5.0);
-    torus.transform.rotate.axis.set(0.0, 1.0, 1.0);
-
-    let sphere_mesh = meshes::sphere(32, 32, 2.0);
-    let sphere = Object::new(sphere_mesh);
-    sphere.transform.pos.x.set(5.0);
+    let image = image::load_from_memory(include_bytes!("../myself.png")).unwrap();
+    let texture = Texture::with_image(&image.to_rgba())?;
+    let rect_mesh = meshes::rect_with_texture(4.0, 4.0, Color::rgba(255, 255, 255, 0.0), texture);
+    let rect_obj = Object::new(rect_mesh);
+    rect_obj.transform.rotate.axis.set(0.0, 1.0, 1.0);
 
     let mut renderer = Renderer::new()?;
 
@@ -31,13 +28,12 @@ pub async fn start() -> Result<(), JsValue> {
     // ライトの設定
     renderer.scene.light = Some(Light::point(0.0, 0.0, 10.0));
 
-    renderer.scene.add(&torus);
-    renderer.scene.add(&sphere);
+    renderer.scene.add(&rect_obj);
 
     loop {
         clear();
 
-        torus.transform.rotate.angle.add(Rad(0.01));
+        rect_obj.transform.rotate.angle.add(Rad(0.02));
 
         renderer.render();
 
