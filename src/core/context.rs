@@ -37,9 +37,11 @@ where
 }
 
 impl Context {
-    pub fn clear_color(&self, color: &Color) {
+    pub fn clear_color_and_depth(&self, color: &Color, depth: f32) {
         let (r, g, b, a) = color.to_f32();
-        self.gl.clear_color(r, g, b, a)
+        self.gl.clear_color(r, g, b, a);
+        self.gl.clear_depth(depth);
+        self.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
     }
 
     pub fn enable(&self, cap: u32) {

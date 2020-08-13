@@ -7,7 +7,7 @@ use crate::{
     scene::Scene,
 };
 use cgmath::prelude::*;
-use wasm_bindgen::JsValue;
+use wasm_bindgen::{JsCast as _, JsValue};
 use web_sys::WebGlRenderingContext as GL;
 
 pub struct Renderer {
@@ -18,7 +18,23 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new() -> Result<Self, JsValue> {
+    /// このライブラリを利用するときのエントリーポイント
+    pub fn new(canvas_id: &str) -> Result<Self, JsValue> {
+        let window = web_sys::window().unwrap();
+        let document = window.document().unwrap();
+        let canvas = document
+            .get_element_by_id(canvas_id)
+            .unwrap()
+            .dyn_into::<web_sys::HtmlCanvasElement>()?;
+
+        context::initialize(canvas)?;
+
+        context::with(|ctx| {
+            ctx.enable_culling();
+            ctx.enable_depth_test();
+            ctx.depth_func(GL::LEQUAL);
+        });
+
         Ok(Renderer {
             basic_program: BasicProgram::gouraud()?,
             texture_program: TextureProgram::phong()?,
@@ -28,8 +44,10 @@ impl Renderer {
     }
 
     pub fn render(&mut self) {
-        // 背景色の設定
-        context::with(|ctx| ctx.clear_color(&self.scene.background));
+        context::with(|ctx| {
+            // 背景色と深度の設定
+            ctx.clear_color_and_depth(&self.scene.background, 1.0);
+        });
 
         for object in self.scene.objects() {
             if object.mesh.texture.is_some() {
