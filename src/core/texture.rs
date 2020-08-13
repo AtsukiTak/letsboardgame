@@ -35,7 +35,7 @@ impl Texture {
 
     // テクスチャユニットを有効化し、そこにテクスチャをbindする
     pub(crate) fn attach_unit(&self, unit_id: u32) {
-        self.active_unit(unit_id);
+        self.activate_unit(unit_id);
         self.bind();
     }
 
@@ -67,10 +67,21 @@ impl Texture {
         context::with(|ctx| ctx.generate_mipmap(GL::TEXTURE_2D))
     }
 
-    // TODO
-    fn active_unit(&self, unit_id: u32) {
+    fn activate_unit(&self, unit_id: u32) {
+        let unit = match unit_id {
+            0 => GL::TEXTURE0,
+            1 => GL::TEXTURE1,
+            2 => GL::TEXTURE2,
+            3 => GL::TEXTURE3,
+            4 => GL::TEXTURE4,
+            5 => GL::TEXTURE5,
+            6 => GL::TEXTURE6,
+            7 => GL::TEXTURE7,
+            _ => panic!("Supported unit_id is 0 ~ 7."),
+        };
+
         context::with(|ctx| {
-            ctx.active_texture(GL::TEXTURE0);
+            ctx.active_texture(unit);
         });
     }
 }
