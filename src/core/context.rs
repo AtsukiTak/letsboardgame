@@ -76,7 +76,7 @@ impl Context {
     /// - disable_vertex_attrib_array
     ///   - 使用しなくなったvertex attributeの無効化のため
     pub fn switch_program<P>(&mut self, program: &Program<P>) {
-        let new_attrib = &program.vertex_attrib_locations;
+        let new_attrib = program.vertex_attrib_locations();
 
         // 新しいprogramで使用しないvertex_attribの無効化
         while let Some((idx, loc)) = self

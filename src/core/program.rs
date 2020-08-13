@@ -15,7 +15,7 @@ pub struct Program<P> {
     vert_shader: VertexShader,
     frag_shader: FragmentShader,
     pub(crate) params: P,
-    pub(crate) vertex_attrib_locations: Vec<u32>,
+    vertex_attrib_locations: Vec<u32>,
 }
 
 impl<P> Program<P>
@@ -61,6 +61,12 @@ where
                 vertex_attrib_locations,
             })
         })
+    }
+}
+
+impl<P> Program<P> {
+    pub fn vertex_attrib_locations(&self) -> &[u32] {
+        self.vertex_attrib_locations.as_ref()
     }
 }
 
