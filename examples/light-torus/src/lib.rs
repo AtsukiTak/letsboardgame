@@ -28,13 +28,11 @@ pub async fn start() -> Result<(), JsValue> {
 
     renderer.scene.add(&rect_obj);
 
-    loop {
-        rect_obj.transform.rotate.angle.add(Rad(0.02));
-
-        renderer.render();
-
-        gloo_timers::future::TimeoutFuture::new(1000 / 60).await;
-    }
+    renderer
+        .start_rendering_loop(60, |_scene, _camera| {
+            rect_obj.transform.rotate.angle.add(Rad(0.02));
+        })
+        .await;
 
     Ok(())
 }

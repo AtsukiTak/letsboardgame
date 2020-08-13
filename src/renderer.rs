@@ -43,7 +43,21 @@ impl Renderer {
         })
     }
 
-    pub fn render(&mut self) {
+    pub async fn start_rendering_loop(
+        mut self,
+        fps: u32,
+        mut before_frame: impl FnMut(&mut Scene, &mut Camera),
+    ) {
+        loop {
+            before_frame(&mut self.scene, &mut self.camera);
+
+            self.render();
+
+            gloo_timers::future::TimeoutFuture::new(1000 / fps).await;
+        }
+    }
+
+    fn render(&mut self) {
         context::with(|ctx| {
             // 背景色と深度の設定
             ctx.clear_color_and_depth(&self.scene.background, 1.0);
