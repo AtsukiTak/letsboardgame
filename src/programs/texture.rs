@@ -1,5 +1,6 @@
 use super::BasicParams;
 use crate::core::{
+    context,
     program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
     shader::{FragmentShader, VertexShader},
     vec::StepVec,
@@ -8,7 +9,7 @@ use cgmath::Vector2;
 use wasm_bindgen::prelude::*;
 
 pub struct TextureProgram {
-    program: Program<TextureParams>,
+    inner: Program<TextureParams>,
 }
 
 impl TextureProgram {
@@ -17,9 +18,9 @@ impl TextureProgram {
         let vert_shader = VertexShader::compile(include_str!("texture-phong.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("texture-phong.frag"))?;
 
-        let program = Program::<TextureParams>::new(vert_shader, frag_shader)?;
+        let inner = Program::<TextureParams>::new(vert_shader, frag_shader)?;
 
-        Ok(TextureProgram { program })
+        Ok(TextureProgram { inner })
     }
 
     /// グーローシェーディング版のTextureProgramを生成する
@@ -27,21 +28,21 @@ impl TextureProgram {
         let vert_shader = VertexShader::compile(include_str!("texture-gouraud.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("texture-gouraud.frag"))?;
 
-        let program = Program::<TextureParams>::new(vert_shader, frag_shader)?;
+        let inner = Program::<TextureParams>::new(vert_shader, frag_shader)?;
 
-        Ok(TextureProgram { program })
+        Ok(TextureProgram { inner })
     }
 
     pub(crate) fn params(&self) -> &TextureParams {
-        &self.program.params
+        &self.inner.params
     }
 
     pub(crate) fn params_mut(&mut self) -> &mut TextureParams {
-        &mut self.program.params
+        &mut self.inner.params
     }
 
-    pub(crate) fn use_program(&self) {
-        self.program.use_program()
+    pub(crate) fn switch(&self) {
+        context::with(|ctx| ctx.switch_program(&self.inner))
     }
 }
 

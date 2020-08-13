@@ -11,11 +11,11 @@ use web_sys::WebGlRenderingContext as GL;
 
 #[allow(dead_code)]
 pub struct Program<P> {
-    pub program: web_sys::WebGlProgram,
+    pub(crate) program: web_sys::WebGlProgram,
     vert_shader: VertexShader,
     frag_shader: FragmentShader,
-    pub params: P,
-    vertex_attrib_locations: Vec<u32>,
+    pub(crate) params: P,
+    pub(crate) vertex_attrib_locations: Vec<u32>,
 }
 
 impl<P> Program<P>
@@ -60,37 +60,6 @@ where
                 params,
                 vertex_attrib_locations,
             })
-        })
-    }
-
-    // 現在のrenderingでこのprogramを使うことを宣言する
-    pub fn use_program(&self) {
-        context::with(|ctx| {
-            let this = &self.vertex_attrib_locations;
-
-            // このprogramで使用しないvertex_attribの無効化
-            while let Some((idx, loc)) = ctx
-                .enabled_vertex_attrib_locations
-                .iter()
-                .enumerate()
-                .find(|(_, loc)| !this.contains(loc))
-            {
-                ctx.disable_vertex_attrib_array(*loc);
-                ctx.enabled_vertex_attrib_locations.swap_remove(idx);
-            }
-
-            // このprogramで新たに使用するvertex_attribの有効化
-            while let Some(loc) = self
-                .vertex_attrib_locations
-                .iter()
-                .find(|loc| !ctx.enabled_vertex_attrib_locations.contains(loc))
-            {
-                ctx.enable_vertex_attrib_array(*loc);
-                ctx.enabled_vertex_attrib_locations.push(*loc);
-            }
-
-            // programの有効化
-            ctx.use_program(Some(&self.program))
         })
     }
 }

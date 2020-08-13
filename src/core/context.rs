@@ -1,4 +1,4 @@
-use super::color::Color;
+use super::{color::Color, program::Program};
 use std::{
     cell::RefCell,
     ops::{Deref, DerefMut},
@@ -8,7 +8,7 @@ use web_sys::WebGlRenderingContext as GL;
 
 pub struct Context {
     gl: GL,
-    pub enabled_vertex_attrib_locations: Vec<u32>,
+    enabled_vertex_attrib_locations: Vec<u32>,
 }
 
 thread_local! {
@@ -64,6 +64,42 @@ impl Context {
 
     pub fn disable_depth_test(&self) {
         self.disable(GL::DEPTH_TEST)
+    }
+
+    /// 指定されたProgramに切り替える
+    /// WebGLのAPI呼び出しとしては、以下の3つのAPIを呼び出している
+    ///
+    /// - use_program
+    ///   - programの有効化のため
+    /// - enable_vertex_attrib_array
+    ///   - 新たに使用するvertex attributeの有効のため
+    /// - disable_vertex_attrib_array
+    ///   - 使用しなくなったvertex attributeの無効化のため
+    pub fn switch_program<P>(&mut self, program: &Program<P>) {
+        let new_attrib = &program.vertex_attrib_locations;
+
+        // 新しいprogramで使用しないvertex_attribの無効化
+        while let Some((idx, loc)) = self
+            .enabled_vertex_attrib_locations
+            .iter()
+            .enumerate()
+            .find(|(_, loc)| !new_attrib.contains(loc))
+        {
+            self.gl.disable_vertex_attrib_array(*loc);
+            self.enabled_vertex_attrib_locations.swap_remove(idx);
+        }
+
+        // 新しいprogramで新たに使用するvertex_attribの有効化
+        while let Some(loc) = new_attrib
+            .iter()
+            .find(|loc| !self.enabled_vertex_attrib_locations.contains(loc))
+        {
+            self.gl.enable_vertex_attrib_array(*loc);
+            self.enabled_vertex_attrib_locations.push(*loc);
+        }
+
+        // programの有効化
+        self.gl.use_program(Some(&program.program))
     }
 }
 

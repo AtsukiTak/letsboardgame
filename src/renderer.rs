@@ -47,7 +47,7 @@ fn render_basic_object(
     camera: &Camera,
     object: &Object,
 ) {
-    program.use_program();
+    program.switch();
 
     set_basic_uniforms(program.params_mut(), scene, camera, object);
 
@@ -64,7 +64,7 @@ fn render_texture_object(
     camera: &Camera,
     object: &Object,
 ) {
-    program.use_program();
+    program.switch();
 
     set_basic_uniforms(program.params_mut().as_mut(), scene, camera, object);
 
