@@ -1,4 +1,4 @@
-use super::{color::Color, program::Program};
+use super::{color::Color, program::GlProgram};
 use std::{
     cell::RefCell,
     ops::{Deref, DerefMut},
@@ -56,7 +56,7 @@ impl Context {
         self.enable(GL::DEPTH_TEST)
     }
 
-    /// 指定されたProgramに切り替える
+    /// 指定されたGlProgramに切り替える
     /// WebGLのAPI呼び出しとしては、以下の3つのAPIを呼び出している
     ///
     /// - use_program
@@ -65,7 +65,7 @@ impl Context {
     ///   - 新たに使用するvertex attributeの有効のため
     /// - disable_vertex_attrib_array
     ///   - 使用しなくなったvertex attributeの無効化のため
-    pub fn switch_program<P>(&mut self, program: &Program<P>) {
+    pub fn switch_program<P>(&mut self, program: &GlProgram<P>) {
         let new_attrib = program.vertex_attrib_locations();
 
         // 新しいprogramで使用しないvertex_attribの無効化

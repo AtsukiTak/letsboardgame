@@ -10,7 +10,7 @@ use wasm_bindgen::JsValue;
 use web_sys::WebGlRenderingContext as GL;
 
 #[allow(dead_code)]
-pub struct Program<P> {
+pub struct GlProgram<P> {
     pub(crate) program: web_sys::WebGlProgram,
     vert_shader: VertexShader,
     frag_shader: FragmentShader,
@@ -18,14 +18,14 @@ pub struct Program<P> {
     vertex_attrib_locations: Vec<u32>,
 }
 
-impl<P> Program<P>
+impl<P> GlProgram<P>
 where
     P: ParamsBase,
 {
     pub fn new(
         vert_shader: VertexShader,
         frag_shader: FragmentShader,
-    ) -> Result<Program<P>, JsValue> {
+    ) -> Result<GlProgram<P>, JsValue> {
         context::with(|ctx| {
             let program = ctx.create_program().unwrap();
 
@@ -53,7 +53,7 @@ where
 
             let vertex_attrib_locations = visitor.vertex_attrib_locations;
 
-            Ok(Program {
+            Ok(GlProgram {
                 program,
                 vert_shader,
                 frag_shader,
@@ -64,7 +64,7 @@ where
     }
 }
 
-impl<P> Program<P> {
+impl<P> GlProgram<P> {
     pub fn vertex_attrib_locations(&self) -> &[u32] {
         self.vertex_attrib_locations.as_ref()
     }

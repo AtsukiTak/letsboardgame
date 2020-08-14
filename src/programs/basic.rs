@@ -1,6 +1,6 @@
 use crate::core::{
     context,
-    program::{Attribute, ParamsBase, ParamsVisitor, Program, Uniform},
+    program::{Attribute, GlProgram, ParamsBase, ParamsVisitor, Uniform},
     shader::{FragmentShader, VertexShader},
     vec::StepVec,
 };
@@ -8,7 +8,7 @@ use cgmath::{Matrix4, Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct BasicProgram {
-    inner: Program<BasicParams>,
+    gl: GlProgram<BasicParams>,
 }
 
 impl BasicProgram {
@@ -17,9 +17,9 @@ impl BasicProgram {
         let vert_shader = VertexShader::compile(include_str!("basic-phong.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("basic-phong.frag"))?;
 
-        let inner = Program::<BasicParams>::new(vert_shader, frag_shader)?;
+        let gl = GlProgram::<BasicParams>::new(vert_shader, frag_shader)?;
 
-        Ok(BasicProgram { inner })
+        Ok(BasicProgram { gl })
     }
 
     /// グーローシェーディング版のBasicProgramを生成する
@@ -27,21 +27,21 @@ impl BasicProgram {
         let vert_shader = VertexShader::compile(include_str!("basic-gouraud.vert"))?;
         let frag_shader = FragmentShader::compile(include_str!("basic-gouraud.frag"))?;
 
-        let inner = Program::<BasicParams>::new(vert_shader, frag_shader)?;
+        let gl = GlProgram::<BasicParams>::new(vert_shader, frag_shader)?;
 
-        Ok(BasicProgram { inner })
+        Ok(BasicProgram { gl })
     }
 
     pub(crate) fn params(&self) -> &BasicParams {
-        &self.inner.params
+        &self.gl.params
     }
 
     pub(crate) fn params_mut(&mut self) -> &mut BasicParams {
-        &mut self.inner.params
+        &mut self.gl.params
     }
 
     pub(crate) fn switch(&self) {
-        context::with(|ctx| ctx.switch_program(&self.inner))
+        context::with(|ctx| ctx.switch_program(&self.gl))
     }
 }
 
