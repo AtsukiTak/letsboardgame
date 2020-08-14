@@ -3,6 +3,7 @@ use crate::core::{
     context,
     program::{Attribute, GlProgram, ParamsBase, ParamsVisitor, Uniform},
     shader::{FragmentShader, VertexShader},
+    texture::GlTextureUnit,
     vec::StepVec,
 };
 use cgmath::Vector2;
@@ -49,7 +50,7 @@ impl TextureProgram {
 pub struct TextureParams {
     pub basic: BasicParams,
     pub tex_coord: Attribute<StepVec<Vector2<f32>>>,
-    pub texture: Uniform<i32>,
+    pub texture: Uniform<GlTextureUnit>,
 }
 
 impl ParamsBase for TextureParams {

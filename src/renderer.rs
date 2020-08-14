@@ -1,6 +1,6 @@
 use crate::{
     camera::Camera,
-    core::context,
+    core::{context, texture::GlTextureUnit},
     light::Light,
     object::Object,
     programs::{BasicParams, BasicProgram, TextureProgram},
@@ -109,8 +109,10 @@ fn render_texture_object(
     program.params().tex_coord.attach_vbo(&texture.coord);
 
     // テクスチャユニットの設定
-    texture.data.gl.attach_unit(0);
-    program.params_mut().texture.set_value(0);
+    texture.data.gl.bind();
+    let unit = GlTextureUnit::Unit0;
+    unit.activate();
+    program.params_mut().texture.set_value(unit);
 
     context::with(|ctx| {
         ctx.draw_elements_with_i32(GL::TRIANGLES, object.mesh.index_len, GL::UNSIGNED_SHORT, 0);

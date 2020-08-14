@@ -28,17 +28,11 @@ impl GlTexture {
         Ok(tex)
     }
 
-    // テクスチャユニットを有効化し、そこにテクスチャをbindする
-    pub(crate) fn attach_unit(&self, unit_id: u32) {
-        self.activate_unit(unit_id);
-        self.bind();
-    }
-
-    fn bind(&self) {
+    pub fn bind(&self) {
         context::with(|ctx| ctx.bind_texture(GL::TEXTURE_2D, Some(&self.gl_texture)))
     }
 
-    fn unbind(&self) {
+    pub fn unbind(&self) {
         context::with(|ctx| ctx.bind_texture(GL::TEXTURE_2D, None))
     }
 
@@ -61,22 +55,52 @@ impl GlTexture {
     fn generate_mipmap(&self) {
         context::with(|ctx| ctx.generate_mipmap(GL::TEXTURE_2D))
     }
+}
 
-    fn activate_unit(&self, unit_id: u32) {
-        let unit = match unit_id {
-            0 => GL::TEXTURE0,
-            1 => GL::TEXTURE1,
-            2 => GL::TEXTURE2,
-            3 => GL::TEXTURE3,
-            4 => GL::TEXTURE4,
-            5 => GL::TEXTURE5,
-            6 => GL::TEXTURE6,
-            7 => GL::TEXTURE7,
-            _ => panic!("Supported unit_id is 0 ~ 7."),
+#[allow(dead_code)]
+pub enum GlTextureUnit {
+    Unit0,
+    Unit1,
+    Unit2,
+    Unit3,
+    Unit4,
+    Unit5,
+    Unit6,
+    Unit7,
+}
+
+impl GlTextureUnit {
+    pub fn activate(&self) {
+        use GlTextureUnit::*;
+
+        let unit = match self {
+            Unit0 => GL::TEXTURE0,
+            Unit1 => GL::TEXTURE1,
+            Unit2 => GL::TEXTURE2,
+            Unit3 => GL::TEXTURE3,
+            Unit4 => GL::TEXTURE4,
+            Unit5 => GL::TEXTURE5,
+            Unit6 => GL::TEXTURE6,
+            Unit7 => GL::TEXTURE7,
         };
 
         context::with(|ctx| {
             ctx.active_texture(unit);
         });
+    }
+
+    pub fn to_int(&self) -> i32 {
+        use GlTextureUnit::*;
+
+        match self {
+            Unit0 => 0,
+            Unit1 => 1,
+            Unit2 => 2,
+            Unit3 => 3,
+            Unit4 => 4,
+            Unit5 => 5,
+            Unit6 => 6,
+            Unit7 => 7,
+        }
     }
 }

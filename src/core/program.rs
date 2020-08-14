@@ -2,6 +2,7 @@ use super::{
     buffers::VBO,
     context::{self, Context},
     shader::{FragmentShader, VertexShader},
+    texture::GlTextureUnit,
     vec::StepVec,
 };
 use cgmath::{Array, Matrix4, Vector3, Vector4};
@@ -223,6 +224,14 @@ impl Uniform<Vector4<f32>> {
 impl Uniform<i32> {
     pub fn set_value(&mut self, value: i32) {
         context::with(|ctx| ctx.uniform1i(Some(&self.location), value));
+        self.value = Some(value);
+    }
+}
+
+impl Uniform<GlTextureUnit> {
+    pub fn set_value(&mut self, value: GlTextureUnit) {
+        let i = value.to_int();
+        context::with(|ctx| ctx.uniform1i(Some(&self.location), i));
         self.value = Some(value);
     }
 }
