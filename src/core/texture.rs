@@ -8,12 +8,6 @@ pub struct GlTexture {
 }
 
 impl GlTexture {
-    pub fn new() -> GlTexture {
-        context::with(|ctx| GlTexture {
-            gl_texture: ctx.create_texture().unwrap(),
-        })
-    }
-
     /// 画像データとともにGlTextureオブジェクトを初期化する
     /// 画像サイズは、縦横それぞれ2の冪乗でなければならない
     pub fn with_raw_image(pixels: &[u8], width: i32, height: i32) -> Result<GlTexture, JsValue> {
@@ -34,6 +28,12 @@ impl GlTexture {
 
     pub fn unbind(&self) {
         context::with(|ctx| ctx.bind_texture(GL::TEXTURE_2D, None))
+    }
+
+    fn new() -> GlTexture {
+        context::with(|ctx| GlTexture {
+            gl_texture: ctx.create_texture().unwrap(),
+        })
     }
 
     fn attach_img(&self, pixels: &[u8], width: i32, height: i32) -> Result<(), JsValue> {
