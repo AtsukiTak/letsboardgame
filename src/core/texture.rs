@@ -1,36 +1,31 @@
 use super::context;
-use image::RgbaImage;
 use wasm_bindgen::JsValue;
 use web_sys::WebGlRenderingContext as GL;
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Texture {
+#[derive(Debug, PartialEq)]
+pub struct GlTexture {
     gl_texture: web_sys::WebGlTexture,
 }
 
-impl Texture {
-    pub fn new() -> Texture {
-        context::with(|ctx| Texture {
+impl GlTexture {
+    pub fn new() -> GlTexture {
+        context::with(|ctx| GlTexture {
             gl_texture: ctx.create_texture().unwrap(),
         })
     }
 
-    /// 画像データとともにTextureオブジェクトを初期化する
+    /// 画像データとともにGlTextureオブジェクトを初期化する
     /// 画像サイズは、縦横それぞれ2の冪乗でなければならない
-    pub fn with_image_parts(pixels: &[u8], width: i32, height: i32) -> Result<Texture, JsValue> {
+    pub fn with_raw_image(pixels: &[u8], width: i32, height: i32) -> Result<GlTexture, JsValue> {
         assert_eq!(width.count_ones(), 1);
         assert_eq!(height.count_ones(), 1);
 
-        let tex = Texture::new();
+        let tex = GlTexture::new();
         tex.bind();
         tex.attach_img(pixels, width, height)?;
         tex.generate_mipmap();
         tex.unbind();
         Ok(tex)
-    }
-
-    pub fn with_image(image: &RgbaImage) -> Result<Texture, JsValue> {
-        Texture::with_image_parts(&image, image.width() as i32, image.height() as i32)
     }
 
     // テクスチャユニットを有効化し、そこにテクスチャをbindする

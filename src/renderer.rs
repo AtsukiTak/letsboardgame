@@ -109,7 +109,7 @@ fn render_texture_object(
     program.params().tex_coord.attach_vbo(&texture.coord);
 
     // テクスチャユニットの設定
-    texture.data.attach_unit(0);
+    texture.data.gl.attach_unit(0);
     program.params_mut().texture.set_value(0);
 
     context::with(|ctx| {

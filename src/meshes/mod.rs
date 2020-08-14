@@ -6,10 +6,12 @@ pub use rect::{rect, rect_with_texture};
 pub use sphere::sphere;
 pub use torus::torus;
 
-use crate::core::{
-    buffers::{IBO, VBO},
+use crate::{
+    core::{
+        buffers::{IBO, VBO},
+        vec::StepVec,
+    },
     texture::Texture,
-    vec::StepVec,
 };
 use cgmath::{Vector2, Vector3, Vector4};
 use std::rc::Rc;
