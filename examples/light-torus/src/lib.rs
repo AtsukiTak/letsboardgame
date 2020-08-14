@@ -1,7 +1,5 @@
 use cgmath::{vec3, Rad};
-use three_wasm::{
-    core::color::Color, light::Light, meshes, object::Object, renderer::Renderer, texture::Texture,
-};
+use three_wasm::{meshes, Color, Light, Object, Renderer, Texture};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]

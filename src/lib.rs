@@ -1,11 +1,23 @@
-pub mod camera;
+mod camera;
+mod core;
+mod object;
+mod renderer;
+mod scene;
+mod texture;
+
 pub mod cell;
-pub mod core;
 pub mod light;
 pub mod meshes;
-pub mod object;
-pub mod original;
 pub mod programs;
-pub mod renderer;
-pub mod scene;
-pub mod texture;
+
+#[cfg(test)]
+mod original;
+
+pub use crate::core::color::Color;
+pub use camera::Camera;
+pub use light::Light;
+pub use meshes::Mesh;
+pub use object::{Object, Transform};
+pub use renderer::Renderer;
+pub use scene::Scene;
+pub use texture::Texture;

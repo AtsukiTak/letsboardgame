@@ -48,24 +48,12 @@ impl Context {
         self.gl.enable(cap)
     }
 
-    pub fn disable(&self, cap: u32) {
-        self.gl.disable(cap)
-    }
-
     pub fn enable_culling(&self) {
         self.enable(GL::CULL_FACE)
     }
 
-    pub fn disable_culling(&self) {
-        self.disable(GL::CULL_FACE)
-    }
-
     pub fn enable_depth_test(&self) {
         self.enable(GL::DEPTH_TEST)
-    }
-
-    pub fn disable_depth_test(&self) {
-        self.disable(GL::DEPTH_TEST)
     }
 
     /// 指定されたProgramに切り替える
