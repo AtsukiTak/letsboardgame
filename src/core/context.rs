@@ -1,4 +1,4 @@
-use super::{color::Color, program::GlProgram};
+use super::program::GlProgram;
 use std::{
     cell::RefCell,
     ops::{Deref, DerefMut},
@@ -37,8 +37,8 @@ where
 }
 
 impl Context {
-    pub fn clear_color_and_depth(&self, color: &Color, depth: f32) {
-        let (r, g, b, a) = color.to_f32();
+    pub fn clear_color_and_depth(&self, color: (f32, f32, f32, f32), depth: f32) {
+        let (r, g, b, a) = color;
         self.gl.clear_color(r, g, b, a);
         self.gl.clear_depth(depth);
         self.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);

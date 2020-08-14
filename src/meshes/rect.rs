@@ -1,8 +1,5 @@
 use super::Mesh;
-use crate::{
-    core::{color::Color, vec::StepVec},
-    texture::Texture,
-};
+use crate::{core::vec::StepVec, Color, Texture};
 use cgmath::{vec2, vec3, vec4, Vector2, Vector3, Vector4};
 
 pub fn rect(width: f32, height: f32, color: Color) -> Mesh {

@@ -60,7 +60,7 @@ impl Renderer {
     fn render(&mut self) {
         context::with(|ctx| {
             // 背景色と深度の設定
-            ctx.clear_color_and_depth(&self.scene.background, 1.0);
+            ctx.clear_color_and_depth(self.scene.background.to_f32(), 1.0);
         });
 
         for object in self.scene.objects() {

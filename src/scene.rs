@@ -1,4 +1,4 @@
-use crate::{core::color::Color, light::Light, object::Object};
+use crate::{Color, Light, Object};
 
 pub struct Scene {
     objects: Vec<Object>,

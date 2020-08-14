@@ -1,4 +1,5 @@
 mod camera;
+mod color;
 mod core;
 mod object;
 mod renderer;
@@ -13,8 +14,8 @@ pub mod programs;
 #[cfg(test)]
 mod original;
 
-pub use crate::core::color::Color;
 pub use camera::Camera;
+pub use color::Color;
 pub use light::Light;
 pub use meshes::Mesh;
 pub use object::{Object, Transform};
