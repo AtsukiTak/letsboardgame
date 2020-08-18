@@ -30,6 +30,30 @@ impl GlTexture {
         context::with(|ctx| ctx.bind_texture(GL::TEXTURE_2D, None))
     }
 
+    /// 縮小表示するときの補完方法を指定する
+    /// この関数を呼び出す前に、bindを実行しておく必要がある
+    pub fn set_minify_filter(&self, method: MinMethod) {
+        context::with(|ctx| {
+            ctx.tex_parameteri(
+                GL::TEXTURE_2D,
+                GL::TEXTURE_MIN_FILTER,
+                method.to_gl() as i32,
+            )
+        })
+    }
+
+    /// 拡大表示するときの保管方法を指定する
+    /// この関数を呼び出す前に、bindを実行しておく必要がある
+    pub fn set_magnify_filter(&self, method: MagMethod) {
+        context::with(|ctx| {
+            ctx.tex_parameteri(
+                GL::TEXTURE_2D,
+                GL::TEXTURE_MAG_FILTER,
+                method.to_gl() as i32,
+            )
+        })
+    }
+
     fn new() -> GlTexture {
         context::with(|ctx| GlTexture {
             gl_texture: ctx.create_texture().unwrap(),
@@ -101,6 +125,64 @@ impl GlTextureUnit {
             Unit5 => 5,
             Unit6 => 6,
             Unit7 => 7,
+        }
+    }
+}
+
+/// 縮小表示するときの補完方法
+/// 下に行くほど、高品質、高負荷になる。
+#[allow(dead_code)]
+pub enum MinMethod {
+    /// 対象ピクセルの中心に最も近い点の値をそのまま採用
+    Nearest,
+    /// 対象ピクセルに最も近い4点の値を加重平均化して採用
+    Linear,
+    /// 最適なミップマップを選択
+    /// さらに gl.NEAREST 準拠で値を採用
+    NearestMipmapNearest,
+    /// 最適なミップマップを選択
+    /// さらに gl.LINEAR 準拠で値を採用
+    NearestMipmapLinear,
+    /// 最適なミップマップを二つ選択
+    /// さらに gl.NEAREST 準拠でそれぞれ値を取り
+    /// それらの値の加重平均を最終的に採用
+    LinearMipmapNearest,
+    /// 最適なミップマップを二つ選択
+    /// さらに gl.NEAREST 準拠でそれぞれ値を取り
+    /// それらの値の加重平均を最終的に採用
+    LinearMipmapLinear,
+}
+
+impl MinMethod {
+    pub fn to_gl(&self) -> u32 {
+        use MinMethod::*;
+        match self {
+            Nearest => GL::NEAREST,
+            Linear => GL::LINEAR,
+            NearestMipmapNearest => GL::NEAREST_MIPMAP_NEAREST,
+            NearestMipmapLinear => GL::NEAREST_MIPMAP_LINEAR,
+            LinearMipmapNearest => GL::LINEAR_MIPMAP_NEAREST,
+            LinearMipmapLinear => GL::LINEAR_MIPMAP_LINEAR,
+        }
+    }
+}
+
+/// 拡大表示するときの補完方法
+/// 下に行くほど、高品質、高負荷になる。
+#[allow(dead_code)]
+pub enum MagMethod {
+    /// 対象ピクセルの中心に最も近い点の値をそのまま採用
+    Nearest,
+    /// 対象ピクセルに最も近い4点の値を加重平均化して採用
+    Linear,
+}
+
+impl MagMethod {
+    pub fn to_gl(&self) -> u32 {
+        use MagMethod::*;
+        match self {
+            Nearest => GL::NEAREST,
+            Linear => GL::LINEAR,
         }
     }
 }
