@@ -8,18 +8,10 @@ pub struct GlTexture {
 }
 
 impl GlTexture {
-    /// 画像データとともにGlTextureオブジェクトを初期化する
-    /// 画像サイズは、縦横それぞれ2の冪乗でなければならない
-    pub fn with_raw_image(pixels: &[u8], width: i32, height: i32) -> Result<GlTexture, JsValue> {
-        assert_eq!(width.count_ones(), 1);
-        assert_eq!(height.count_ones(), 1);
-
-        let tex = GlTexture::new();
-        tex.bind();
-        tex.attach_img(pixels, width, height)?;
-        tex.generate_mipmap();
-        tex.unbind();
-        Ok(tex)
+    pub fn new() -> GlTexture {
+        context::with(|ctx| GlTexture {
+            gl_texture: ctx.create_texture().unwrap(),
+        })
     }
 
     pub fn bind(&self) {
@@ -28,6 +20,32 @@ impl GlTexture {
 
     pub fn unbind(&self) {
         context::with(|ctx| ctx.bind_texture(GL::TEXTURE_2D, None))
+    }
+
+    /// 画像サイズは、縦横それぞれ2の冪乗でなければならない
+    /// この関数を呼び出す前に、bindを実行しておく必要がある
+    pub fn attach_img(&self, pixels: &[u8], width: i32, height: i32) -> Result<(), JsValue> {
+        assert_eq!(width.count_ones(), 1);
+        assert_eq!(height.count_ones(), 1);
+
+        context::with(|ctx| {
+            ctx.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
+                GL::TEXTURE_2D,  // target
+                0,               // level
+                GL::RGBA as i32, // internal format
+                width,
+                height,
+                0,                 // border. Must be 0.
+                GL::RGBA,          // format
+                GL::UNSIGNED_BYTE, // type
+                Some(pixels),
+            )
+        })
+    }
+
+    /// この関数を呼び出す前に、bindを実行しておく必要がある
+    pub fn generate_mipmap(&self) {
+        context::with(|ctx| ctx.generate_mipmap(GL::TEXTURE_2D))
     }
 
     /// 縮小表示するときの補完方法を指定する
@@ -52,32 +70,6 @@ impl GlTexture {
                 method.to_gl() as i32,
             )
         })
-    }
-
-    fn new() -> GlTexture {
-        context::with(|ctx| GlTexture {
-            gl_texture: ctx.create_texture().unwrap(),
-        })
-    }
-
-    fn attach_img(&self, pixels: &[u8], width: i32, height: i32) -> Result<(), JsValue> {
-        context::with(|ctx| {
-            ctx.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
-                GL::TEXTURE_2D,  // target
-                0,               // level
-                GL::RGBA as i32, // internal format
-                width,
-                height,
-                0,                 // border. Must be 0.
-                GL::RGBA,          // format
-                GL::UNSIGNED_BYTE, // type
-                Some(pixels),
-            )
-        })
-    }
-
-    fn generate_mipmap(&self) {
-        context::with(|ctx| ctx.generate_mipmap(GL::TEXTURE_2D))
     }
 }
 

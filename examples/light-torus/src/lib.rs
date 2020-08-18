@@ -7,7 +7,7 @@ pub async fn start() -> Result<(), JsValue> {
     let mut renderer = Renderer::new("canvas")?;
 
     let image = image::load_from_memory(include_bytes!("../myself.png")).unwrap();
-    let texture = Texture::with_image(&image.into_rgba())?;
+    let texture = Texture::with_image_low(&image.into_rgba())?;
     let rect_mesh = meshes::rect_with_texture(4.0, 4.0, Color::rgba(255, 255, 255, 0.0), texture);
     let rect_obj = Object::new(rect_mesh);
     rect_obj.transform.rotate.axis.set(0.0, 1.0, 1.0);

@@ -10,10 +10,24 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn with_image(image: &RgbaImage) -> Result<Texture, JsValue> {
-        let gl = GlTexture::with_raw_image(&image, image.width() as i32, image.height() as i32)?;
+    pub fn with_image_high(image: &RgbaImage) -> Result<Texture, JsValue> {
+        let gl = GlTexture::new();
+        gl.bind();
+        gl.attach_img(&image, image.width() as i32, image.height() as i32)?;
+        gl.generate_mipmap();
         gl.set_minify_filter(MinMethod::NearestMipmapLinear);
         gl.set_magnify_filter(MagMethod::Linear);
+        gl.unbind();
+        Ok(Texture { gl })
+    }
+
+    pub fn with_image_low(image: &RgbaImage) -> Result<Texture, JsValue> {
+        let gl = GlTexture::new();
+        gl.bind();
+        gl.attach_img(&image, image.width() as i32, image.height() as i32)?;
+        gl.set_minify_filter(MinMethod::Nearest);
+        gl.set_magnify_filter(MagMethod::Nearest);
+        gl.unbind();
         Ok(Texture { gl })
     }
 }
