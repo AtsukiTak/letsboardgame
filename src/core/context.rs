@@ -44,16 +44,14 @@ impl Context {
         self.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
     }
 
-    pub fn enable(&self, cap: u32) {
-        self.gl.enable(cap)
-    }
-
+    /// カリングを有効化する
     pub fn enable_culling(&self) {
-        self.enable(GL::CULL_FACE)
+        self.gl.enable(GL::CULL_FACE)
     }
 
+    /// 深度テストを有効化する
     pub fn enable_depth_test(&self) {
-        self.enable(GL::DEPTH_TEST)
+        self.gl.enable(GL::DEPTH_TEST)
     }
 
     /// 指定されたGlProgramに切り替える
