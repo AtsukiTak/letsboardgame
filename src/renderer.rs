@@ -1,6 +1,9 @@
 use crate::{
     camera::Camera,
-    core::{context, texture::GlTextureUnit},
+    core::{
+        context::{self, DepthFunc},
+        texture::GlTextureUnit,
+    },
     light::Light,
     object::Object,
     programs::{BasicParams, BasicProgram, TextureProgram},
@@ -31,8 +34,7 @@ impl Renderer {
 
         context::with(|ctx| {
             ctx.enable_culling();
-            ctx.enable_depth_test();
-            ctx.depth_func(GL::LEQUAL);
+            ctx.enable_depth_test(DepthFunc::LEqual);
         });
 
         Ok(Renderer {

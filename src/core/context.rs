@@ -50,8 +50,9 @@ impl Context {
     }
 
     /// 深度テストを有効化する
-    pub fn enable_depth_test(&self) {
-        self.gl.enable(GL::DEPTH_TEST)
+    pub fn enable_depth_test(&self, depth_func: DepthFunc) {
+        self.gl.enable(GL::DEPTH_TEST);
+        self.gl.depth_func(depth_func.to_gl());
     }
 
     /// ブレンディングを有効化する
@@ -108,6 +109,40 @@ impl Deref for Context {
 impl DerefMut for Context {
     fn deref_mut(&mut self) -> &mut GL {
         &mut self.gl
+    }
+}
+
+pub enum DepthFunc {
+    /// never pass
+    Never,
+    /// pass if the incoming value is less than the depth buffer value
+    Less,
+    /// pass if the incoming value equals to the depth buffer value
+    Equal,
+    /// pass if the incoming value is less than or equal to the depth buffer value
+    LEqual,
+    /// pass if the incoming value is greater than the depth buffer value
+    Greater,
+    /// pass if the incoming value is not equal to the depth buffer value
+    NotEqual,
+    /// pass if the incoming value is greater than or equal to the depth buffer value
+    GEqual,
+    /// always pass
+    Always,
+}
+
+impl DepthFunc {
+    pub fn to_gl(&self) -> u32 {
+        match self {
+            DepthFunc::Never => GL::NEVER,
+            DepthFunc::Less => GL::LESS,
+            DepthFunc::Equal => GL::EQUAL,
+            DepthFunc::LEqual => GL::LEQUAL,
+            DepthFunc::Greater => GL::GREATER,
+            DepthFunc::NotEqual => GL::NOTEQUAL,
+            DepthFunc::GEqual => GL::GEQUAL,
+            DepthFunc::Always => GL::ALWAYS,
+        }
     }
 }
 
