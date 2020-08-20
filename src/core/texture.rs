@@ -71,9 +71,20 @@ impl GlTexture {
             )
         })
     }
+
+    pub fn set_wrap_s(&self, method: WrapMethod) {
+        context::with(|ctx| {
+            ctx.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, method.to_gl() as i32)
+        })
+    }
+
+    pub fn set_wrap_t(&self, method: WrapMethod) {
+        context::with(|ctx| {
+            ctx.tex_parameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, method.to_gl() as i32)
+        })
+    }
 }
 
-#[allow(dead_code)]
 pub enum GlTextureUnit {
     Unit0,
     Unit1,
@@ -123,7 +134,6 @@ impl GlTextureUnit {
 
 /// 縮小表示するときの補完方法
 /// 下に行くほど、高品質、高負荷になる。
-#[allow(dead_code)]
 pub enum MinMethod {
     /// 対象ピクセルの中心に最も近い点の値をそのまま採用
     Nearest,
@@ -161,7 +171,6 @@ impl MinMethod {
 
 /// 拡大表示するときの補完方法
 /// 下に行くほど、高品質、高負荷になる。
-#[allow(dead_code)]
 pub enum MagMethod {
     /// 対象ピクセルの中心に最も近い点の値をそのまま採用
     Nearest,
@@ -175,6 +184,26 @@ impl MagMethod {
         match self {
             Nearest => GL::NEAREST,
             Linear => GL::LINEAR,
+        }
+    }
+}
+
+/// テクスチャに範囲外のテクスチャ座標が指定された場合の処理方法
+pub enum WrapMethod {
+    /// 範囲外の値に対し繰り返し処理
+    Repeat,
+    /// 範囲外の値を対照的に繰り返し処理
+    MirroredRepeat,
+    /// 値を0~1の範囲内に収まるようクランプ
+    ClampToEdge,
+}
+
+impl WrapMethod {
+    pub fn to_gl(&self) -> u32 {
+        match self {
+            WrapMethod::Repeat => GL::REPEAT,
+            WrapMethod::MirroredRepeat => GL::MIRRORED_REPEAT,
+            WrapMethod::ClampToEdge => GL::CLAMP_TO_EDGE,
         }
     }
 }

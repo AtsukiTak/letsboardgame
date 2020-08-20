@@ -1,12 +1,12 @@
 mod camera;
 mod color;
-mod core;
 mod object;
 mod renderer;
 mod scene;
 mod texture;
 
 pub mod cell;
+pub mod core;
 pub mod light;
 pub mod meshes;
 pub mod programs;
