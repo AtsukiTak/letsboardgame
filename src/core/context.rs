@@ -54,6 +54,12 @@ impl Context {
         self.gl.enable(GL::DEPTH_TEST)
     }
 
+    /// ブレンディングを有効化する
+    pub fn enable_blending(&self, src_fac: BlendFactor, dst_fac: BlendFactor) {
+        self.gl.enable(GL::BLEND);
+        self.gl.blend_func(src_fac.to_gl(), dst_fac.to_gl());
+    }
+
     /// 指定されたGlProgramに切り替える
     /// WebGLのAPI呼び出しとしては、以下の3つのAPIを呼び出している
     ///
@@ -102,5 +108,61 @@ impl Deref for Context {
 impl DerefMut for Context {
     fn deref_mut(&mut self) -> &mut GL {
         &mut self.gl
+    }
+}
+
+pub enum BlendFactor {
+    /// (0, 0, 0, 0)
+    Zero,
+    /// (1, 1, 1, 1)
+    One,
+    /// (Rs, Gs, Bs, As)
+    SrcColor,
+    /// (Rd, Gd, Bd, Ad)
+    DstColor,
+    /// (1 - Rs, 1 - Gs, 1 - Bs, 1 - As)
+    OneMinusSrcColor,
+    /// (1 - Rd, 1 - Gd, 1 - Bd, 1 - Ad)
+    OneMinusDstColor,
+    /// (As, As, As, As)
+    SrcAlpha,
+    /// (Ad, Ad, Ad, Ad)
+    DstAlpha,
+    /// (1 - As, 1 - As, 1 - As, 1 - As)
+    OneMinusSrcAlpha,
+    /// (1 - Ad, 1 - Ad, 1 - Ad, 1 - Ad)
+    OneMinusDstAlpha,
+    /// (Rc, Gc, Bc, Ac)
+    ConstantColor,
+    /// (1 - Rc, 1 - Gc, 1 - Bc, 1 - Ac)
+    OneMinusConstantColor,
+    /// (Ac, Ac, Ac, Ac)
+    ConstantAlpha,
+    /// (1 - Ac, 1 - Ac, 1 - Ac, 1 - Ac)
+    OneMinusConstantAlpha,
+    /// (min(As, 1 - Ad), min(As, 1 - Ad), min(As, 1 - Ad), min(As, 1 - Ad))
+    SrcAlphaSaturate,
+}
+
+impl BlendFactor {
+    pub fn to_gl(&self) -> u32 {
+        use BlendFactor::*;
+        match self {
+            Zero => GL::ZERO,
+            One => GL::ONE,
+            SrcColor => GL::SRC_COLOR,
+            DstColor => GL::DST_COLOR,
+            OneMinusSrcColor => GL::ONE_MINUS_SRC_COLOR,
+            OneMinusDstColor => GL::ONE_MINUS_DST_COLOR,
+            SrcAlpha => GL::SRC_ALPHA,
+            DstAlpha => GL::DST_ALPHA,
+            OneMinusSrcAlpha => GL::ONE_MINUS_SRC_ALPHA,
+            OneMinusDstAlpha => GL::ONE_MINUS_DST_ALPHA,
+            ConstantColor => GL::CONSTANT_COLOR,
+            OneMinusConstantColor => GL::ONE_MINUS_CONSTANT_COLOR,
+            ConstantAlpha => GL::CONSTANT_ALPHA,
+            OneMinusConstantAlpha => GL::ONE_MINUS_CONSTANT_ALPHA,
+            SrcAlphaSaturate => GL::SRC_ALPHA_SATURATE,
+        }
     }
 }
