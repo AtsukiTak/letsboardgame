@@ -297,7 +297,7 @@ dependencies = [
  "cgmath",
  "gloo-timers",
  "image",
- "three-wasm",
+ "napier",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -340,6 +340,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "791daaae1ed6889560f8c4359194f56648355540573244a5448a83ba1ecc7435"
 dependencies = [
  "adler32",
+]
+
+[[package]]
+name = "napier"
+version = "0.1.0"
+dependencies = [
+ "cgmath",
+ "console_error_panic_hook",
+ "derive_more",
+ "gloo-timers",
+ "image",
+ "js-sys",
+ "napier-core",
+ "palette",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
+name = "napier-core"
+version = "0.1.0"
+dependencies = [
+ "cgmath",
+ "js-sys",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -709,22 +736,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-xid",
-]
-
-[[package]]
-name = "three-wasm"
-version = "0.1.0"
-dependencies = [
- "cgmath",
- "console_error_panic_hook",
- "derive_more",
- "gloo-timers",
- "image",
- "js-sys",
- "palette",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
 ]
 
 [[package]]
