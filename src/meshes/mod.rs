@@ -6,14 +6,12 @@ pub use rect::{rect, rect_with_texture};
 pub use sphere::sphere;
 pub use torus::torus;
 
-use crate::{
-    core::{
-        buffers::{IBO, VBO},
-        vec::StepVec,
-    },
-    texture::Texture,
-};
+use crate::texture::Texture;
 use cgmath::{Vector2, Vector3, Vector4};
+use napier_core::{
+    buffers::{IBO, VBO},
+    vec::StepVec,
+};
 use std::rc::Rc;
 
 #[derive(Debug, Clone, PartialEq)]

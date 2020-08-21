@@ -15,7 +15,7 @@ pub struct GlProgram<P> {
     pub(crate) program: web_sys::WebGlProgram,
     vert_shader: VertexShader,
     frag_shader: FragmentShader,
-    pub(crate) params: P,
+    pub params: P,
     vertex_attrib_locations: Vec<u32>,
 }
 

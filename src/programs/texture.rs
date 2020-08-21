@@ -1,12 +1,12 @@
 use super::BasicParams;
-use crate::core::{
+use cgmath::Vector2;
+use napier_core::{
     context,
     program::{Attribute, GlProgram, ParamsBase, ParamsVisitor, Uniform},
     shader::{FragmentShader, VertexShader},
     texture::GlTextureUnit,
     vec::StepVec,
 };
-use cgmath::Vector2;
 use wasm_bindgen::prelude::*;
 
 pub struct TextureProgram {

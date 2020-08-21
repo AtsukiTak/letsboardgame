@@ -1,15 +1,15 @@
 use crate::{
     camera::Camera,
-    core::{
-        context::{self, DepthFunc},
-        texture::GlTextureUnit,
-    },
     light::Light,
     object::Object,
     programs::{BasicParams, BasicProgram, TextureProgram},
     scene::Scene,
 };
 use cgmath::prelude::*;
+use napier_core::{
+    context::{self, DepthFunc},
+    texture::GlTextureUnit,
+};
 use wasm_bindgen::{JsCast as _, JsValue};
 use web_sys::WebGlRenderingContext as GL;
 

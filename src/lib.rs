@@ -6,7 +6,6 @@ mod scene;
 mod texture;
 
 pub mod cell;
-pub mod core;
 pub mod light;
 pub mod meshes;
 pub mod programs;

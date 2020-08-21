@@ -1,6 +1,6 @@
 use super::Mesh;
-use crate::core::vec::StepVec;
 use cgmath::{prelude::*, vec3, vec4, Rad, Vector3, Vector4};
+use napier_core::vec::StepVec;
 use palette::{Hsva, Srgba};
 
 const CIRCLE_RAD: Rad<f32> = Rad(std::f32::consts::PI * 2.0);

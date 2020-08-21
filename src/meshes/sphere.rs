@@ -1,6 +1,6 @@
 use super::Mesh;
-use crate::core::vec::StepVec;
 use cgmath::{vec3, vec4, Vector3, Vector4};
+use napier_core::vec::StepVec;
 use palette::{Hsva, Srgba};
 
 pub fn sphere(row: usize, column: usize, radius: f32) -> Mesh {

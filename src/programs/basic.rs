@@ -1,10 +1,10 @@
-use crate::core::{
+use cgmath::{Matrix4, Vector3, Vector4};
+use napier_core::{
     context,
     program::{Attribute, GlProgram, ParamsBase, ParamsVisitor, Uniform},
     shader::{FragmentShader, VertexShader},
     vec::StepVec,
 };
-use cgmath::{Matrix4, Vector3, Vector4};
 use wasm_bindgen::prelude::*;
 
 pub struct BasicProgram {
