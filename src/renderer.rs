@@ -7,7 +7,7 @@ use crate::{
 };
 use cgmath::prelude::*;
 use napier_core::{
-    context::{self, DepthFunc},
+    context::{self, BlendFactor, DepthFunc},
     texture::GlTextureUnit,
 };
 use wasm_bindgen::{JsCast as _, JsValue};
@@ -35,6 +35,8 @@ impl Renderer {
         context::with(|ctx| {
             ctx.enable_culling();
             ctx.enable_depth_test(DepthFunc::LEqual);
+            // 透過処理のブレンディングを有効化
+            ctx.enable_blending(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
         });
 
         Ok(Renderer {
