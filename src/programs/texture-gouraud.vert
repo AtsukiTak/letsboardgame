@@ -30,7 +30,7 @@ vec4 specular() {
   vec3 invEye = normalize(invMMatrix * vec4(-eyeDirection, 0.0)).xyz;
   vec3 halfLE = normalize(invLight() + invEye);
   float specularVal = pow(clamp(dot(normal, halfLE), 0.0, 1.0), 50.0);
-  return vec4(vec3(specularVal), 1.0);
+  return vec4(vec3(specularVal), 0.0);
 }
 
 void main(void) {
