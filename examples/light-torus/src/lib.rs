@@ -4,6 +4,8 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
 pub async fn start() -> Result<(), JsValue> {
+    web_logger::init();
+
     let mut renderer = Renderer::new("canvas")?;
 
     let image = image::load_from_memory(include_bytes!("../myself.png")).unwrap();
