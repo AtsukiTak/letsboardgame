@@ -36,7 +36,12 @@ impl Renderer {
             ctx.enable_culling();
             ctx.enable_depth_test(DepthFunc::LEqual);
             // 透過処理のブレンディングを有効化
-            ctx.enable_blending(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
+            ctx.enable_separate_blending(
+                BlendFactor::SrcAlpha,         // src_rgb
+                BlendFactor::OneMinusSrcAlpha, // dst_rgb
+                BlendFactor::One,              // src_alpha
+                BlendFactor::One,              // dst_alpha
+            );
         });
 
         Ok(Renderer {

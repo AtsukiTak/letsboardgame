@@ -56,9 +56,35 @@ impl Context {
     }
 
     /// ブレンディングを有効化する
+    ///
+    /// ## ブレンディングの計算式
+    ///
+    /// RGBA = ( sourceRGBA * src_fac ) + ( destinationRGBA * dst_fac )
     pub fn enable_blending(&self, src_fac: BlendFactor, dst_fac: BlendFactor) {
         self.gl.enable(GL::BLEND);
         self.gl.blend_func(src_fac.to_gl(), dst_fac.to_gl());
+    }
+
+    /// 分割ブレンディングを有効化する
+    ///
+    /// ## ブレンディングの計算式
+    ///
+    /// RGB = ( sourceRGB * src_rgb ) + ( destinationRGB * dst_rgb )
+    /// A = ( sourceAlpha * src_alpha ) + ( destinationAlpha * dst_alpha )
+    pub fn enable_separate_blending(
+        &self,
+        src_rgb: BlendFactor,
+        dst_rgb: BlendFactor,
+        src_alpha: BlendFactor,
+        dst_alpha: BlendFactor,
+    ) {
+        self.gl.enable(GL::BLEND);
+        self.gl.blend_func_separate(
+            src_rgb.to_gl(),
+            dst_rgb.to_gl(),
+            src_alpha.to_gl(),
+            dst_alpha.to_gl(),
+        );
     }
 
     /// 指定されたGlProgramに切り替える
@@ -146,36 +172,39 @@ impl DepthFunc {
     }
 }
 
+/// # Factor
+/// |                       | rgba                              | rgb                           | alpha     |
+/// |-----------------------|-----------------------------------|-------------------------------|-----------|
+/// | Zero                  | 0, 0, 0, 0                        | 0, 0, 0                       | 0         |
+/// | One                   | 1, 1, 1, 1                        | 1, 1, 1                       | 1         |
+/// | SrcColor              | Rs, Gs, Bs, As                    | Rs, Gs, Bs                    | As        |
+/// | DstColor              | Rd, Gd, Bd, Ad                    | Rd, Gd, Bd                    | Ad        |
+/// | OneMinusSrcColor      | 1 - Rs, 1 - Gs, 1 - Bs, 1 - As    | 1 - Rs, 1 - Gs, 1 - Bs        | 1 - As    |
+/// | OneMinusDstColor      | 1 - Rd, 1 - Gd, 1 - Bd, 1 - Ad    | 1 - Rd, 1 - Gd, 1 - Bd        | 1 - Ad    |
+/// | SrcAlpha              | As, As, As, As                    | As, As, As                    | As        |
+/// | DstAlpha              | Ad, Ad, Ad, Ad                    | Ad, Ad, Ad                    | Ad        |
+/// | OneMinusSrcAlpha      | 1 - As, 1 - As, 1 - As, 1 - As    | 1 - As, 1 - As, 1 - As        | 1 - As    |
+/// | OneMinusDstAlpha      | 1 - Ad, 1 - Ad, 1 - Ad, 1 - Ad    | 1 - Ad, 1 - Ad, 1 - Ad        | 1 - Ad    |
+/// | ConstantColor         | Rc, Gc, Bc, Ac                    | Rc, Gc, Bc                    | Ac        |
+/// | OneMinusConstantColor | 1 - Rc, 1 - Gc, 1 - Bc, 1 - Ac    | 1 - Rc, 1 - Gc, 1 - Bc        | 1 - Ac    |
+/// | ConstantAlpha         | Ac, Ac, Ac, Ac                    | Ac, Ac, Ac                    | Ac        |
+/// | OneMinusConstantAlpha | 1 - Ac, 1 - Ac, 1 - Ac, 1 - Ac    | 1 - Ac, 1 - Ac, 1 - Ac        | 1 - Ac    |
+/// | SrcAlphaSaturate      | m, m, m, m (m = min(As, 1 - Ad))  | m, m, m (m = min(As, 1 - Ad)) | 1         |
 pub enum BlendFactor {
-    /// (0, 0, 0, 0)
     Zero,
-    /// (1, 1, 1, 1)
     One,
-    /// (Rs, Gs, Bs, As)
     SrcColor,
-    /// (Rd, Gd, Bd, Ad)
     DstColor,
-    /// (1 - Rs, 1 - Gs, 1 - Bs, 1 - As)
     OneMinusSrcColor,
-    /// (1 - Rd, 1 - Gd, 1 - Bd, 1 - Ad)
     OneMinusDstColor,
-    /// (As, As, As, As)
     SrcAlpha,
-    /// (Ad, Ad, Ad, Ad)
     DstAlpha,
-    /// (1 - As, 1 - As, 1 - As, 1 - As)
     OneMinusSrcAlpha,
-    /// (1 - Ad, 1 - Ad, 1 - Ad, 1 - Ad)
     OneMinusDstAlpha,
-    /// (Rc, Gc, Bc, Ac)
     ConstantColor,
-    /// (1 - Rc, 1 - Gc, 1 - Bc, 1 - Ac)
     OneMinusConstantColor,
-    /// (Ac, Ac, Ac, Ac)
     ConstantAlpha,
-    /// (1 - Ac, 1 - Ac, 1 - Ac, 1 - Ac)
     OneMinusConstantAlpha,
-    /// (min(As, 1 - Ad), min(As, 1 - Ad), min(As, 1 - Ad), min(As, 1 - Ad))
     SrcAlphaSaturate,
 }
 
