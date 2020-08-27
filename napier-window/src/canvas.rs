@@ -1,24 +1,31 @@
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::HtmlCanvasElement;
+use web_sys::{HtmlCanvasElement, Node};
 
 pub struct Canvas {
     canvas: HtmlCanvasElement,
 }
 
 impl Canvas {
-    pub fn new(width: u32, height: u32) -> Result<Self, JsValue> {
-        let canvas = web_sys::window()
-            .unwrap()
-            .document()
-            .unwrap()
+    pub fn full_page() -> Result<Self, JsValue> {
+        let document = web_sys::window().unwrap().document().unwrap();
+
+        let canvas = document
             .create_element("canvas")?
-            .dyn_into()
+            .dyn_into::<HtmlCanvasElement>()
             .unwrap();
 
-        canvas.set_width(width);
-        canvas.set_height(width);
+        let body = document.body().unwrap();
 
-        Ok(Canvas { canvas })
+        canvas.set_width(body.client_width() as u32);
+        canvas.set_height(body.client_height() as u32);
+
+        AsRef::<Node>::as_ref(&body).append_child(&canvas)?;
+
+        Ok(Canvas::from_element(canvas))
+    }
+
+    pub fn from_element(canvas: HtmlCanvasElement) -> Self {
+        Canvas { canvas }
     }
 }
 

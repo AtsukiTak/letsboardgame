@@ -18,6 +18,7 @@ features = [
   "EventTarget",
   "HtmlCanvasElement",
   "MouseEvent",
+  "Node",
   "TouchEvent",
   "Window"
 ]
