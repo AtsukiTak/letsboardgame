@@ -10,7 +10,8 @@ use napier_core::{
     context::{self, BlendFactor, DepthFunc},
     texture::GlTextureUnit,
 };
-use wasm_bindgen::{JsCast as _, JsValue};
+use napier_window::Canvas;
+use wasm_bindgen::JsValue;
 use web_sys::WebGlRenderingContext as GL;
 
 pub struct Renderer {
@@ -22,15 +23,10 @@ pub struct Renderer {
 
 impl Renderer {
     /// このライブラリを利用するときのエントリーポイント
-    pub fn new(canvas_id: &str) -> Result<Self, JsValue> {
-        let window = web_sys::window().unwrap();
-        let document = window.document().unwrap();
-        let canvas = document
-            .get_element_by_id(canvas_id)
-            .unwrap()
-            .dyn_into::<web_sys::HtmlCanvasElement>()?;
+    pub fn new() -> Result<Self, JsValue> {
+        let canvas = Canvas::full_page()?;
 
-        context::initialize(canvas)?;
+        context::initialize(canvas.as_ref())?;
 
         context::with(|ctx| {
             ctx.enable_culling();
