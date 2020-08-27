@@ -1,3 +1,4 @@
+use crate::event::EventStream;
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{HtmlCanvasElement, Node};
 
@@ -26,6 +27,10 @@ impl Canvas {
 
     pub fn from_element(canvas: HtmlCanvasElement) -> Self {
         Canvas { canvas }
+    }
+
+    pub fn event_stream(&self) -> EventStream {
+        EventStream::listen(&self.canvas)
     }
 }
 
