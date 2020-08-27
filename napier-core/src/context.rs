@@ -15,7 +15,7 @@ thread_local! {
     static GLOBAL_CONTEXT_CELL: RefCell<Option<Context>> = RefCell::new(None);
 }
 
-pub fn initialize(canvas: web_sys::HtmlCanvasElement) -> Result<(), JsValue> {
+pub fn initialize(canvas: &web_sys::HtmlCanvasElement) -> Result<(), JsValue> {
     let gl = canvas.get_context("webgl")?.unwrap().dyn_into::<GL>()?;
 
     let context = Context {
