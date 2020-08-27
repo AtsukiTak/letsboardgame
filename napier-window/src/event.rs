@@ -6,10 +6,11 @@ use futures::{
 use gloo_events::{EventListener, EventListenerOptions};
 use std::pin::Pin;
 use wasm_bindgen::JsCast;
-use web_sys::{EventTarget, TouchEvent as WebTouchEvent};
+use web_sys::{EventTarget, MouseEvent as WebMouseEvent, TouchEvent as WebTouchEvent};
 
 pub enum Event {
     Touch(TouchEvent),
+    Mouse(MouseEvent),
 }
 
 pub enum TouchEvent {
@@ -19,36 +20,49 @@ pub enum TouchEvent {
     Cancel(WebTouchEvent),
 }
 
+pub enum MouseEvent {
+    Enter(WebMouseEvent),
+    Leave(WebMouseEvent),
+    Down(WebMouseEvent),
+    Up(WebMouseEvent),
+    Move(WebMouseEvent),
+}
+
 #[pin_project::pin_project]
 pub struct EventStream {
     #[pin]
     receiver: Receiver<Event>,
-    listener_touch_start: EventListener,
-    listener_touch_move: EventListener,
-    listener_touch_end: EventListener,
-    listener_touch_cancel: EventListener,
+
+    listeners: Vec<EventListener>,
 }
 
 impl EventStream {
     pub fn listen(target: &EventTarget) -> Self {
         let (sender, receiver) = channel(1024);
 
-        let listener_touch_start = listen_touch_event(target, "touchstart", sender.clone());
-        let listener_touch_move = listen_touch_event(target, "touchmove", sender.clone());
-        let listener_touch_end = listen_touch_event(target, "touchend", sender.clone());
-        let listener_touch_cancel = listen_touch_event(target, "touchcancel", sender.clone());
+        let listeners = [
+            "touchstart",
+            "touchmove",
+            "touchend",
+            "touchcancel",
+            "mouseenter",
+            "mouseleave",
+            "mousedown",
+            "mouseup",
+            "mousemove",
+        ]
+        .iter()
+        .map(|event_type| listen_event(target, event_type, sender.clone()))
+        .collect::<Vec<_>>();
 
         EventStream {
             receiver,
-            listener_touch_start,
-            listener_touch_move,
-            listener_touch_end,
-            listener_touch_cancel,
+            listeners,
         }
     }
 }
 
-fn listen_touch_event(
+fn listen_event(
     target: &EventTarget,
     event_type: &'static str,
     mut sender: Sender<Event>,
@@ -58,19 +72,35 @@ fn listen_touch_event(
         event_type,
         EventListenerOptions::enable_prevent_default(),
         move |event| {
-            // タッチによる選択、スクロールなどを止める
+            // タッチ、マウスによる選択、スクロールなどを止める
             event.prevent_default();
 
-            let touch_event = event.clone().dyn_into::<WebTouchEvent>().unwrap();
-            let event = match event_type {
-                "touchstart" => TouchEvent::Start(touch_event),
-                "touchmove" => TouchEvent::Move(touch_event),
-                "touchend" => TouchEvent::End(touch_event),
-                "touchcancel" => TouchEvent::Cancel(touch_event),
-                _ => unreachable!(),
+            let event = if event_type.starts_with("touch") {
+                let event = event.clone().dyn_into().unwrap();
+                let touch_event = match event_type {
+                    "touchstart" => TouchEvent::Start(event),
+                    "touchmove" => TouchEvent::Move(event),
+                    "touchend" => TouchEvent::End(event),
+                    "touchcancel" => TouchEvent::Cancel(event),
+                    _ => unreachable!(),
+                };
+                Event::Touch(touch_event)
+            } else if event_type.starts_with("mouse") {
+                let event = event.clone().dyn_into().unwrap();
+                let mouse_event = match event_type {
+                    "mouseenter" => MouseEvent::Enter(event),
+                    "mouseleave" => MouseEvent::Leave(event),
+                    "mousemove" => MouseEvent::Move(event),
+                    "mousedown" => MouseEvent::Down(event),
+                    "mouseup" => MouseEvent::Up(event),
+                    _ => unreachable!(),
+                };
+                Event::Mouse(mouse_event)
+            } else {
+                unreachable!();
             };
 
-            if let Err(_) = sender.try_send(Event::Touch(event)) {
+            if let Err(_) = sender.try_send(event) {
                 log::info!("EventStream buffer is full. So any succeeding event will not sent until receiver consumes an event");
             }
         },
