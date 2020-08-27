@@ -8,7 +8,7 @@ pub use torus::torus;
 
 use crate::texture::Texture;
 use cgmath::{Vector2, Vector3, Vector4};
-use napier_core::{
+use napier_webgl::{
     buffers::{IBO, VBO},
     vec::StepVec,
 };

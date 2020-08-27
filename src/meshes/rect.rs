@@ -1,7 +1,7 @@
 use super::Mesh;
 use crate::{Color, Texture};
 use cgmath::{vec2, vec3, vec4, Vector2, Vector3, Vector4};
-use napier_core::vec::StepVec;
+use napier_webgl::vec::StepVec;
 
 pub fn rect(width: f32, height: f32, color: Color) -> Mesh {
     // Zを書くように頂点を設定する

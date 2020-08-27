@@ -1,6 +1,6 @@
 use super::BasicParams;
 use cgmath::Vector2;
-use napier_core::{
+use napier_webgl::{
     context,
     program::{Attribute, GlProgram, ParamsBase, ParamsVisitor, Uniform},
     shader::{FragmentShader, VertexShader},

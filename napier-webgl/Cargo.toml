@@ -1,5 +1,5 @@
 [package]
-name = "napier-core"
+name = "napier-webgl"
 version = "0.1.0"
 authors = ["AtsukiTak <takatomgoo@gmail.com>"]
 edition = "2018"

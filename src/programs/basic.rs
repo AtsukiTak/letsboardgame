@@ -1,5 +1,5 @@
 use cgmath::{Matrix4, Vector3, Vector4};
-use napier_core::{
+use napier_webgl::{
     context,
     program::{Attribute, GlProgram, ParamsBase, ParamsVisitor, Uniform},
     shader::{FragmentShader, VertexShader},

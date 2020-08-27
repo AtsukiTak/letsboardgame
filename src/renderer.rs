@@ -6,7 +6,7 @@ use crate::{
     scene::Scene,
 };
 use cgmath::prelude::*;
-use napier_core::{
+use napier_webgl::{
     context::{self, BlendFactor, DepthFunc},
     texture::GlTextureUnit,
 };

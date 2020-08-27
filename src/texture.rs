@@ -1,7 +1,7 @@
 use image::RgbaImage;
 use wasm_bindgen::JsValue;
 
-pub use napier_core::texture::{GlTexture, MagMethod, MinMethod};
+pub use napier_webgl::texture::{GlTexture, MagMethod, MinMethod};
 
 #[derive(Debug, PartialEq)]
 pub struct Texture {
