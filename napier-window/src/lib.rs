@@ -19,7 +19,14 @@ impl EventStream {
     where
         S: Into<Cow<'static, str>>,
     {
-        let (mut sender, receiver) = channel(1024);
+        EventStream::listen_with_buffer(target, event_type, 64)
+    }
+
+    pub fn listen_with_buffer<S>(target: &EventTarget, event_type: S, buffer: usize) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
+        let (mut sender, receiver) = channel(buffer);
 
         let listener = EventListener::new(target, event_type, move |event| {
             if let Err(_) = sender.try_send(event.clone()) {
