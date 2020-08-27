@@ -6,13 +6,17 @@ use futures::{
 use gloo_events::{EventListener, EventListenerOptions};
 use std::pin::Pin;
 use wasm_bindgen::JsCast;
-use web_sys::{EventTarget, TouchEvent};
+use web_sys::{EventTarget, TouchEvent as WebTouchEvent};
 
 pub enum Event {
-    TouchStart(TouchEvent),
-    TouchMove(TouchEvent),
-    TouchEnd(TouchEvent),
-    TouchCancel(TouchEvent),
+    Touch(TouchEvent),
+}
+
+pub enum TouchEvent {
+    Start(WebTouchEvent),
+    Move(WebTouchEvent),
+    End(WebTouchEvent),
+    Cancel(WebTouchEvent),
 }
 
 #[pin_project::pin_project]
@@ -57,16 +61,16 @@ fn listen_touch_event(
             // タッチによる選択、スクロールなどを止める
             event.prevent_default();
 
-            let touch_event = event.clone().dyn_into::<TouchEvent>().unwrap();
+            let touch_event = event.clone().dyn_into::<WebTouchEvent>().unwrap();
             let event = match event_type {
-                "touchstart" => Event::TouchStart(touch_event),
-                "touchmove" => Event::TouchMove(touch_event),
-                "touchend" => Event::TouchEnd(touch_event),
-                "touchcancel" => Event::TouchCancel(touch_event),
+                "touchstart" => TouchEvent::Start(touch_event),
+                "touchmove" => TouchEvent::Move(touch_event),
+                "touchend" => TouchEvent::End(touch_event),
+                "touchcancel" => TouchEvent::Cancel(touch_event),
                 _ => unreachable!(),
             };
 
-            if let Err(_) = sender.try_send(event) {
+            if let Err(_) = sender.try_send(Event::Touch(event)) {
                 log::info!("EventStream buffer is full. So any succeeding event will not sent until receiver consumes an event");
             }
         },
