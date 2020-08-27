@@ -6,7 +6,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn new() -> Result<Self, JsValue> {
+    pub fn new(width: u32, height: u32) -> Result<Self, JsValue> {
         let canvas = web_sys::window()
             .unwrap()
             .document()
@@ -14,6 +14,9 @@ impl Canvas {
             .create_element("canvas")?
             .dyn_into()
             .unwrap();
+
+        canvas.set_width(width);
+        canvas.set_height(width);
 
         Ok(Canvas { canvas })
     }
