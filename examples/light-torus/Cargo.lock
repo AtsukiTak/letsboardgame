@@ -468,7 +468,7 @@ dependencies = [
  "image",
  "js-sys",
  "log",
- "napier-core",
+ "napier-webgl",
  "napier-window",
  "palette",
  "wasm-bindgen",
@@ -477,7 +477,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "napier-core"
+name = "napier-webgl"
 version = "0.1.0"
 dependencies = [
  "cgmath",

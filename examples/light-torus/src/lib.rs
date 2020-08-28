@@ -1,12 +1,14 @@
 use cgmath::{vec3, Rad};
-use napier::{meshes, Color, Light, Object, Renderer, Texture};
+use napier::{meshes, window::Canvas, Color, Light, Object, Renderer, Texture};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
 pub async fn start() -> Result<(), JsValue> {
     web_logger::init();
 
-    let mut renderer = Renderer::new()?;
+    let canvas = Canvas::from_element_id("canvas").unwrap();
+
+    let mut renderer = Renderer::new(canvas)?;
 
     let image = image::load_from_memory(include_bytes!("../myself.png")).unwrap();
     let texture = Texture::with_image_low(&image.into_rgba())?;
