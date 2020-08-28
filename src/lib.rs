@@ -21,3 +21,6 @@ pub use object::{Object, Transform};
 pub use renderer::Renderer;
 pub use scene::Scene;
 pub use texture::Texture;
+
+pub use napier_webgl as webgl;
+pub use napier_window as window;

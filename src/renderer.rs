@@ -4,28 +4,27 @@ use crate::{
     object::Object,
     programs::{BasicParams, BasicProgram, TextureProgram},
     scene::Scene,
+    window::Canvas,
 };
 use cgmath::prelude::*;
 use napier_webgl::{
     context::{self, BlendFactor, DepthFunc},
     texture::GlTextureUnit,
 };
-use napier_window::Canvas;
 use wasm_bindgen::JsValue;
 use web_sys::WebGlRenderingContext as GL;
 
 pub struct Renderer {
     basic_program: BasicProgram,
     texture_program: TextureProgram,
+    pub canvas: Canvas,
     pub scene: Scene,
     pub camera: Camera,
 }
 
 impl Renderer {
     /// このライブラリを利用するときのエントリーポイント
-    pub fn new() -> Result<Self, JsValue> {
-        let canvas = Canvas::full_page()?;
-
+    pub fn new(canvas: Canvas) -> Result<Self, JsValue> {
         context::initialize(canvas.as_ref())?;
 
         context::with(|ctx| {
@@ -43,6 +42,7 @@ impl Renderer {
         Ok(Renderer {
             basic_program: BasicProgram::gouraud()?,
             texture_program: TextureProgram::phong()?,
+            canvas,
             scene: Scene::new(),
             camera: Camera::new(),
         })
