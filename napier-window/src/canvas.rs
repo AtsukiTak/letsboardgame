@@ -25,6 +25,15 @@ impl Canvas {
         Ok(Canvas::from_element(canvas))
     }
 
+    pub fn from_element_id(id: &str) -> Option<Self> {
+        let element = web_sys::window()?
+            .document()?
+            .get_element_by_id(id)?
+            .dyn_into()
+            .ok()?;
+        Some(Canvas::from_element(element))
+    }
+
     pub fn from_element(canvas: HtmlCanvasElement) -> Self {
         Canvas { canvas }
     }
