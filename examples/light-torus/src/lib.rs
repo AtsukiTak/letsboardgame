@@ -10,18 +10,7 @@ pub async fn start() -> Result<(), JsValue> {
 
     napier::init(&canvas).unwrap();
 
-    let image = image::load_from_memory(include_bytes!("../myself.png")).unwrap();
-    let texture = Texture::with_image_low(&image.into_rgba())?;
-    let rect_obj = Object::new(meshes::rect_with_texture(
-        4.0,
-        4.0,
-        Color::rgba(255, 255, 255, 1.0),
-        texture,
-    ));
-    rect_obj.transform.rotate.axis.set(0.0, 1.0, 1.0);
-
-    let transparent_rect = Object::new(meshes::rect(6.0, 6.0, Color::rgba(100, 100, 100, 0.3)));
-    transparent_rect.transform.pos.z.set(-1.0);
+    let objects = Objects::new()?;
 
     // カメラの設定
     let mut camera = Camera::new();
@@ -32,13 +21,13 @@ pub async fn start() -> Result<(), JsValue> {
     // シーンの設定
     let mut scene = Scene::new();
     scene.light = Some(Light::point(0.0, 0.0, 10.0));
-    scene.add(&rect_obj);
-    scene.add(&transparent_rect);
+    scene.add(&objects.texture);
+    scene.add(&objects.transparent_rect);
 
     // レンダリング
     let mut renderer = Renderer::new()?;
     loop {
-        rect_obj.transform.rotate.angle.add(Rad(0.02));
+        objects.texture.transform.rotate.angle.add(Rad(0.02));
 
         renderer.render(&scene, &camera);
 
@@ -46,4 +35,31 @@ pub async fn start() -> Result<(), JsValue> {
     }
 
     Ok(())
+}
+
+pub struct Objects {
+    texture: Object,
+    transparent_rect: Object,
+}
+
+impl Objects {
+    pub fn new() -> Result<Self, JsValue> {
+        let image = image::load_from_memory(include_bytes!("../myself.png")).unwrap();
+        let texture = Texture::with_image_low(&image.into_rgba())?;
+        let texture_obj = Object::new(meshes::rect_with_texture(
+            4.0,
+            4.0,
+            Color::rgba(255, 255, 255, 1.0),
+            texture,
+        ));
+        texture_obj.transform.rotate.axis.set(0.0, 1.0, 1.0);
+
+        let transparent_rect = Object::new(meshes::rect(6.0, 6.0, Color::rgba(100, 100, 100, 0.3)));
+        transparent_rect.transform.pos.z.set(-1.0);
+
+        Ok(Objects {
+            texture: texture_obj,
+            transparent_rect,
+        })
+    }
 }
