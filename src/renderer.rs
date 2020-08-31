@@ -25,8 +25,6 @@ pub struct Renderer {
 impl Renderer {
     /// このライブラリを利用するときのエントリーポイント
     pub fn new(canvas: Canvas) -> Result<Self, JsValue> {
-        context::initialize(canvas.as_ref())?;
-
         context::with(|ctx| {
             ctx.enable_culling();
             ctx.enable_depth_test(DepthFunc::LEqual);

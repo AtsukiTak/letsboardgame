@@ -8,6 +8,8 @@ pub async fn start() -> Result<(), JsValue> {
 
     let canvas = Canvas::from_element_id("canvas").unwrap();
 
+    napier::init(&canvas).unwrap();
+
     let mut renderer = Renderer::new(canvas)?;
 
     let image = image::load_from_memory(include_bytes!("../myself.png")).unwrap();

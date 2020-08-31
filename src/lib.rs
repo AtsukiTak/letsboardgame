@@ -24,3 +24,10 @@ pub use texture::Texture;
 
 pub use napier_webgl as webgl;
 pub use napier_window as window;
+
+use wasm_bindgen::JsValue;
+
+/// `Canvas` 以外のオブジェクトを作成する前にこの `init` 関数を呼び出さなければいけない
+pub fn init(canvas: &window::Canvas) -> Result<(), JsValue> {
+    webgl::context::initialize(canvas.as_ref())
+}
