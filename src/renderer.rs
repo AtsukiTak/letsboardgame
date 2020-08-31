@@ -4,7 +4,6 @@ use crate::{
     object::Object,
     programs::{BasicParams, BasicProgram, TextureProgram},
     scene::Scene,
-    window::Canvas,
 };
 use cgmath::prelude::*;
 use napier_webgl::{
@@ -17,14 +16,11 @@ use web_sys::WebGlRenderingContext as GL;
 pub struct Renderer {
     basic_program: BasicProgram,
     texture_program: TextureProgram,
-    pub canvas: Canvas,
-    pub scene: Scene,
-    pub camera: Camera,
 }
 
 impl Renderer {
     /// このライブラリを利用するときのエントリーポイント
-    pub fn new(canvas: Canvas) -> Result<Self, JsValue> {
+    pub fn new() -> Result<Self, JsValue> {
         context::with(|ctx| {
             ctx.enable_culling();
             ctx.enable_depth_test(DepthFunc::LEqual);
@@ -40,37 +36,20 @@ impl Renderer {
         Ok(Renderer {
             basic_program: BasicProgram::gouraud()?,
             texture_program: TextureProgram::phong()?,
-            canvas,
-            scene: Scene::new(),
-            camera: Camera::new(),
         })
     }
 
-    pub async fn start_rendering_loop(
-        mut self,
-        fps: u32,
-        mut before_frame: impl FnMut(&mut Scene, &mut Camera),
-    ) {
-        loop {
-            before_frame(&mut self.scene, &mut self.camera);
-
-            self.render();
-
-            gloo_timers::future::TimeoutFuture::new(1000 / fps).await;
-        }
-    }
-
-    fn render(&mut self) {
+    pub fn render(&mut self, scene: &Scene, camera: &Camera) {
         context::with(|ctx| {
             // 背景色と深度の設定
-            ctx.clear_color_and_depth(self.scene.background.to_f32(), 1.0);
+            ctx.clear_color_and_depth(scene.background.to_f32(), 1.0);
         });
 
-        for object in self.scene.objects() {
+        for object in scene.objects() {
             if object.mesh.texture.is_some() {
-                render_texture_object(&mut self.texture_program, &self.scene, &self.camera, object);
+                render_texture_object(&mut self.texture_program, scene, camera, object);
             } else {
-                render_basic_object(&mut self.basic_program, &self.scene, &self.camera, object);
+                render_basic_object(&mut self.basic_program, scene, camera, object);
             }
         }
     }
