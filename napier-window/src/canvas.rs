@@ -1,9 +1,11 @@
 use crate::event::EventStream;
+use std::rc::Rc;
 use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{HtmlCanvasElement, Node};
+use web_sys::{Element, HtmlCanvasElement, Node};
 
+#[derive(Debug, Clone)]
 pub struct Canvas {
-    canvas: HtmlCanvasElement,
+    canvas: Rc<HtmlCanvasElement>,
 }
 
 impl Canvas {
@@ -35,16 +37,32 @@ impl Canvas {
     }
 
     pub fn from_element(canvas: HtmlCanvasElement) -> Self {
-        Canvas { canvas }
+        Canvas {
+            canvas: Rc::new(canvas),
+        }
     }
 
     pub fn event_stream(&self) -> EventStream {
-        EventStream::listen(&self.canvas)
+        EventStream::listen(self)
+    }
+
+    pub fn as_html_canvas_element(&self) -> &HtmlCanvasElement {
+        &self.canvas
+    }
+
+    pub fn as_element(&self) -> &Element {
+        self.canvas.as_ref()
     }
 }
 
 impl AsRef<HtmlCanvasElement> for Canvas {
     fn as_ref(&self) -> &HtmlCanvasElement {
-        &self.canvas
+        self.as_html_canvas_element()
+    }
+}
+
+impl AsRef<Element> for Canvas {
+    fn as_ref(&self) -> &Element {
+        self.as_element()
     }
 }
