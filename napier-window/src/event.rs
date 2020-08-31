@@ -6,26 +6,19 @@ use futures::{
 use gloo_events::{EventListener, EventListenerOptions};
 use std::pin::Pin;
 use wasm_bindgen::JsCast;
-use web_sys::{EventTarget, MouseEvent as WebMouseEvent, TouchEvent as WebTouchEvent};
+use web_sys::{EventTarget, MouseEvent, TouchEvent};
 
 pub enum Event {
-    Touch(TouchEvent),
-    Mouse(MouseEvent),
-}
+    TouchStart(TouchEvent),
+    TouchMove(TouchEvent),
+    TouchEnd(TouchEvent),
+    TouchCancel(TouchEvent),
 
-pub enum TouchEvent {
-    Start(WebTouchEvent),
-    Move(WebTouchEvent),
-    End(WebTouchEvent),
-    Cancel(WebTouchEvent),
-}
-
-pub enum MouseEvent {
-    Enter(WebMouseEvent),
-    Leave(WebMouseEvent),
-    Down(WebMouseEvent),
-    Up(WebMouseEvent),
-    Move(WebMouseEvent),
+    MouseEnter(MouseEvent),
+    MouseLeave(MouseEvent),
+    MouseDown(MouseEvent),
+    MouseUp(MouseEvent),
+    MouseMove(MouseEvent),
 }
 
 #[pin_project::pin_project]
@@ -67,6 +60,8 @@ fn listen_event(
     event_type: &'static str,
     mut sender: Sender<Event>,
 ) -> EventListener {
+    use Event::*;
+
     EventListener::new_with_options(
         target,
         event_type,
@@ -77,25 +72,23 @@ fn listen_event(
 
             let event = if event_type.starts_with("touch") {
                 let event = event.clone().dyn_into().unwrap();
-                let touch_event = match event_type {
-                    "touchstart" => TouchEvent::Start(event),
-                    "touchmove" => TouchEvent::Move(event),
-                    "touchend" => TouchEvent::End(event),
-                    "touchcancel" => TouchEvent::Cancel(event),
+                match event_type {
+                    "touchstart" => TouchStart(event),
+                    "touchmove" => TouchMove(event),
+                    "touchend" => TouchEnd(event),
+                    "touchcancel" => TouchCancel(event),
                     _ => unreachable!(),
-                };
-                Event::Touch(touch_event)
+                }
             } else if event_type.starts_with("mouse") {
                 let event = event.clone().dyn_into().unwrap();
-                let mouse_event = match event_type {
-                    "mouseenter" => MouseEvent::Enter(event),
-                    "mouseleave" => MouseEvent::Leave(event),
-                    "mousemove" => MouseEvent::Move(event),
-                    "mousedown" => MouseEvent::Down(event),
-                    "mouseup" => MouseEvent::Up(event),
+                match event_type {
+                    "mouseenter" => MouseEnter(event),
+                    "mouseleave" => MouseLeave(event),
+                    "mousemove" => MouseMove(event),
+                    "mousedown" => MouseDown(event),
+                    "mouseup" => MouseUp(event),
                     _ => unreachable!(),
-                };
-                Event::Mouse(mouse_event)
+                }
             } else {
                 unreachable!();
             };
