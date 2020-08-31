@@ -57,7 +57,7 @@ impl Clone for Object {
 pub struct Transform {
     // 移動方向
     pub pos: Vector3Cell<f32>,
-    // 回転軸
+    // 回転
     pub rotate: TransformRotate,
     // x, y, z 方向への拡大率
     pub scale: Vector3Cell<f32>,

@@ -9,6 +9,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 cgmath = "0.17.0"
+futures = "0.3.5"
 gloo-timers = { version = "0.2.1", features = ["futures"] }
 image = "0.23.8"
 napier = { path = "../../" }

@@ -1,5 +1,10 @@
 use cgmath::{vec3, Rad};
-use napier::{meshes, window::Canvas, Camera, Color, Light, Object, Renderer, Scene, Texture};
+use futures::stream::StreamExt as _;
+use napier::{
+    meshes,
+    window::{event::Event, Canvas},
+    Camera, Color, Light, Object, Renderer, Scene, Texture,
+};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
@@ -24,15 +29,32 @@ pub async fn start() -> Result<(), JsValue> {
     scene.add(&objects.texture);
     scene.add(&objects.transparent_rect);
 
+    // イベントハンドラの設定
+    let event_handler_fut = canvas.event_stream().for_each(|event| match event {
+        Event::MouseMove(event) => {
+            let x = event.x() as f32 - canvas.width() as f32 / 2.0;
+            let y = event.y() as f32 - canvas.height() as f32 / 2.0;
+            objects.texture.transform.rotate.axis.set(y, x, 0.0);
+            futures::future::ready(())
+        }
+        _ => futures::future::ready(()),
+    });
+    futures::pin_mut!(event_handler_fut);
+
     // レンダリング
     let mut renderer = Renderer::new()?;
-    loop {
-        objects.texture.transform.rotate.angle.add(Rad(0.02));
+    let rendering_fut = async {
+        loop {
+            objects.texture.transform.rotate.angle.add(Rad(0.02));
 
-        renderer.render(&scene, &camera);
+            renderer.render(&scene, &camera);
 
-        gloo_timers::future::TimeoutFuture::new(1000 / 60).await;
-    }
+            gloo_timers::future::TimeoutFuture::new(1000 / 60).await;
+        }
+    };
+    futures::pin_mut!(rendering_fut);
+
+    futures::future::select(event_handler_fut, rendering_fut).await;
 
     Ok(())
 }

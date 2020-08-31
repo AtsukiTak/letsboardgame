@@ -6,6 +6,8 @@ use web_sys::{Element, HtmlCanvasElement, Node};
 #[derive(Debug, Clone)]
 pub struct Canvas {
     canvas: Rc<HtmlCanvasElement>,
+    width: u32,
+    height: u32,
 }
 
 impl Canvas {
@@ -38,8 +40,18 @@ impl Canvas {
 
     pub fn from_element(canvas: HtmlCanvasElement) -> Self {
         Canvas {
+            width: canvas.width(),
+            height: canvas.height(),
             canvas: Rc::new(canvas),
         }
+    }
+
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.height
     }
 
     pub fn event_stream(&self) -> EventStream {

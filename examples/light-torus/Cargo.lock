@@ -403,6 +403,7 @@ name = "light-torus"
 version = "0.1.0"
 dependencies = [
  "cgmath",
+ "futures",
  "gloo-timers",
  "image",
  "napier",
